@@ -1,0 +1,528 @@
+{
+  "source": "SILICON_NIGHT_V1.blend",
+  "exposure": 0.35,
+  "lights": [
+    {
+      "name": "LGT_N_Moon_Key",
+      "type": "SUN",
+      "position": [
+        -33.08281,
+        42.1054,
+        27.06775
+      ],
+      "direction": [
+        0.55138,
+        -0.701756,
+        -0.451129
+      ],
+      "color": [
+        0.52,
+        0.66,
+        1.0
+      ],
+      "energy": 1.6,
+      "angle": 0.0209,
+      "size": null,
+      "sizeY": null,
+      "castShadow": true
+    },
+    {
+      "name": "LGT_N_Moon_Rim",
+      "type": "SUN",
+      "position": [
+        39.29354,
+        16.84009,
+        -42.10022
+      ],
+      "direction": [
+        -0.654892,
+        -0.280668,
+        0.70167
+      ],
+      "color": [
+        0.4,
+        0.58,
+        0.95
+      ],
+      "energy": 0.55,
+      "angle": 0.0349,
+      "size": null,
+      "sizeY": null,
+      "castShadow": true
+    },
+    {
+      "name": "LGT_N_Under_Fill",
+      "type": "SUN",
+      "position": [
+        5.547,
+        -55.47002,
+        22.18801
+      ],
+      "direction": [
+        -0.09245,
+        0.9245,
+        -0.3698
+      ],
+      "color": [
+        0.35,
+        0.5,
+        0.9
+      ],
+      "energy": 0.3,
+      "angle": 0.4363,
+      "size": null,
+      "sizeY": null,
+      "castShadow": false
+    },
+    {
+      "name": "LGT_Screen_CRT",
+      "type": "AREA",
+      "position": [
+        -7.93957,
+        2.67482,
+        1.19039
+      ],
+      "direction": [
+        0.325568,
+        -0.0,
+        0.945519
+      ],
+      "color": [
+        0.55,
+        0.82,
+        1.0
+      ],
+      "energy": 14.0,
+      "angle": null,
+      "size": 0.9577,
+      "sizeY": 0.73,
+      "castShadow": true
+    },
+    {
+      "name": "LGT_Screen_TV",
+      "type": "AREA",
+      "position": [
+        6.01052,
+        1.74047,
+        0.08854
+      ],
+      "direction": [
+        -0.156434,
+        0.0,
+        0.987688
+      ],
+      "color": [
+        0.55,
+        0.82,
+        1.0
+      ],
+      "energy": 16.0,
+      "angle": null,
+      "size": 1.0752,
+      "sizeY": 1.1707,
+      "castShadow": true
+    },
+    {
+      "name": "LGT_Win_R3L",
+      "type": "POINT",
+      "position": [
+        -1.63379,
+        13.66867,
+        -3.4
+      ],
+      "direction": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "color": [
+        1.0,
+        0.61,
+        0.29
+      ],
+      "energy": 260.0,
+      "angle": null,
+      "size": null,
+      "sizeY": null,
+      "castShadow": true
+    },
+    {
+      "name": "LGT_Win_R5R",
+      "type": "POINT",
+      "position": [
+        1.84994,
+        8.06867,
+        -3.4
+      ],
+      "direction": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "color": [
+        1.0,
+        0.61,
+        0.29
+      ],
+      "energy": 260.0,
+      "angle": null,
+      "size": null,
+      "sizeY": null,
+      "castShadow": true
+    }
+  ],
+  "cameras": [
+    {
+      "name": "CAM_DN_01_hero",
+      "position": [
+        0.0,
+        4.2,
+        64.0
+      ],
+      "target": [
+        0.0,
+        4.0,
+        -2.5
+      ],
+      "forward": [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "quaternion": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "lensMm": 50.0,
+      "sensorWidthMm": 36.0,
+      "fov43Deg": 30.219,
+      "shiftX": 0.0,
+      "shiftY": 0.0
+    },
+    {
+      "name": "CAM_DN_02_vertical",
+      "position": [
+        0.0,
+        9.0,
+        30.0
+      ],
+      "target": [
+        0.0,
+        9.0,
+        -2.5
+      ],
+      "forward": [
+        0.0,
+        -0.0,
+        -1.0
+      ],
+      "quaternion": [
+        -0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "lensMm": 35.0,
+      "sensorWidthMm": 36.0,
+      "fov43Deg": 42.185,
+      "shiftX": 0.0,
+      "shiftY": 0.0
+    },
+    {
+      "name": "CAM_DN_03_crt",
+      "position": [
+        -6.5322,
+        2.875,
+        4.0555
+      ],
+      "target": [
+        -7.758,
+        2.825,
+        0.937
+      ],
+      "forward": [
+        -0.365786,
+        -0.014921,
+        -0.930579
+      ],
+      "quaternion": [
+        -0.00733,
+        0.186163,
+        0.001389,
+        0.982491
+      ],
+      "lensMm": 50.0,
+      "sensorWidthMm": 36.0,
+      "fov43Deg": 30.219,
+      "shiftX": 0.0,
+      "shiftY": 0.0
+    },
+    {
+      "name": "CAM_DN_04_tower_window",
+      "position": [
+        0.3,
+        10.9,
+        9.0
+      ],
+      "target": [
+        1.62,
+        10.4,
+        -2.26
+      ],
+      "forward": [
+        0.116319,
+        -0.04406,
+        -0.992234
+      ],
+      "quaternion": [
+        -0.021998,
+        -0.058301,
+        -0.001285,
+        0.998056
+      ],
+      "lensMm": 85.0,
+      "sensorWidthMm": 36.0,
+      "fov43Deg": 18.049,
+      "shiftX": 0.0,
+      "shiftY": 0.0
+    },
+    {
+      "name": "CAM_DN_05_tv",
+      "position": [
+        5.1874,
+        1.165,
+        3.4138
+      ],
+      "target": [
+        5.649,
+        1.115,
+        -0.143
+      ],
+      "forward": [
+        0.128688,
+        -0.013939,
+        -0.991587
+      ],
+      "quaternion": [
+        -0.006955,
+        -0.064483,
+        -0.000449,
+        0.997894
+      ],
+      "lensMm": 50.0,
+      "sensorWidthMm": 36.0,
+      "fov43Deg": 30.219,
+      "shiftX": 0.0,
+      "shiftY": 0.0
+    },
+    {
+      "name": "CAM_N_01_island",
+      "position": [
+        0.0,
+        4.2,
+        64.0
+      ],
+      "target": [
+        0.0,
+        4.20002,
+        -2.5
+      ],
+      "forward": [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "quaternion": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "lensMm": 50.0,
+      "sensorWidthMm": 36.0,
+      "fov43Deg": 30.219,
+      "shiftX": 0.0,
+      "shiftY": 0.0
+    },
+    {
+      "name": "CAM_N_02_threequarter",
+      "position": [
+        30.0,
+        20.0,
+        42.0
+      ],
+      "target": [
+        0.21219,
+        4.11317,
+        -2.6817
+      ],
+      "forward": [
+        -0.531912,
+        -0.283686,
+        -0.797867
+      ],
+      "quaternion": [
+        -0.137173,
+        0.286792,
+        0.041533,
+        0.947211
+      ],
+      "lensMm": 35.0,
+      "sensorWidthMm": 36.0,
+      "fov43Deg": 42.185,
+      "shiftX": 0.0,
+      "shiftY": 0.0
+    },
+    {
+      "name": "CAM_N_03_facade",
+      "position": [
+        0.0,
+        10.0,
+        35.0
+      ],
+      "target": [
+        0.0,
+        9.00969,
+        -2.63184
+      ],
+      "forward": [
+        0.0,
+        -0.026307,
+        -0.999654
+      ],
+      "quaternion": [
+        -0.013155,
+        0.0,
+        0.0,
+        0.999913
+      ],
+      "lensMm": 50.0,
+      "sensorWidthMm": 36.0,
+      "fov43Deg": 30.219,
+      "shiftX": 0.0,
+      "shiftY": 0.0
+    },
+    {
+      "name": "CAM_N_04_amber_windows",
+      "position": [
+        0.0,
+        11.0,
+        16.0
+      ],
+      "target": [
+        0.0,
+        11.0,
+        -2.5
+      ],
+      "forward": [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "quaternion": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "lensMm": 42.0,
+      "sensorWidthMm": 36.0,
+      "fov43Deg": 35.638,
+      "shiftX": 0.0,
+      "shiftY": 0.0
+    },
+    {
+      "name": "CAM_N_05_computer",
+      "position": [
+        -14.0,
+        7.0,
+        13.0
+      ],
+      "target": [
+        -5.65854,
+        0.04878,
+        -3.68293
+      ],
+      "forward": [
+        0.419058,
+        -0.349215,
+        -0.838116
+      ],
+      "quaternion": [
+        -0.172676,
+        -0.226108,
+        -0.040763,
+        0.957808
+      ],
+      "lensMm": 48.0,
+      "sensorWidthMm": 36.0,
+      "fov43Deg": 31.417,
+      "shiftX": 0.0,
+      "shiftY": 0.0
+    },
+    {
+      "name": "CAM_N_06_receptor_intro",
+      "position": [
+        0.0,
+        0.95,
+        15.5
+      ],
+      "target": [
+        0.0,
+        -0.05,
+        5.0
+      ],
+      "forward": [
+        0.0,
+        -0.094809,
+        -0.995495
+      ],
+      "quaternion": [
+        -0.047458,
+        0.0,
+        0.0,
+        0.998873
+      ],
+      "lensMm": 45.0,
+      "sensorWidthMm": 36.0,
+      "fov43Deg": 33.398,
+      "shiftX": 0.0,
+      "shiftY": 0.0
+    }
+  ],
+  "mist": {
+    "position": [
+      0.0,
+      1.2,
+      -0.5
+    ],
+    "size": [
+      46.0,
+      6.0,
+      36.0
+    ]
+  },
+  "screenBounds": {
+    "SD_Screen_CRT": {
+      "minX": -0.1544,
+      "maxX": 1.1744,
+      "minY": 0.52162,
+      "maxY": 1.54838
+    },
+    "SD_Screen_TV": {
+      "minX": -1.12242,
+      "maxX": 0.12242,
+      "minY": 0.25495,
+      "maxY": 1.35505
+    }
+  },
+  "screens": [
+    "crt_eye.png",
+    "crt_signal_overlay.png",
+    "tv_multi_eyes.png",
+    "veg_eye.png",
+    "window_eye.png"
+  ]
+}

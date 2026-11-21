@@ -1,0 +1,279 @@
+{
+  "source": "experiments/gardenos-reconstruction/reception_corridor_v01.blend",
+  "exposure": 0.0,
+  "veraAnchor": {
+    "position": [
+      1.52,
+      0.0,
+      -6.8
+    ],
+    "rotY": -1.5708
+  },
+  "doors": {
+    "SM_Door_Vera_104": {
+      "pivot": [
+        1.26,
+        -0.0,
+        -6.35
+      ],
+      "restRotY": 0.0,
+      "openRotY": -0.82
+    },
+    "SM_Door_Void_Exit": {
+      "pivot": [
+        -0.516,
+        -0.0,
+        -24.08
+      ],
+      "restRotY": 0.0,
+      "openRotY": 1.35
+    }
+  },
+  "cameras": {
+    "CAM_RECEP_PHONE_BACK": {
+      "position": [
+        0.2,
+        1.56,
+        -0.55
+      ],
+      "quaternion": [
+        -0.0116,
+        0.95355,
+        0.03704,
+        0.29873
+      ],
+      "lensMm": 32.0,
+      "sensorWidthMm": 36.0
+    },
+    "CAM_RECEP_SPAWN": {
+      "position": [
+        0.0,
+        1.58,
+        -0.0
+      ],
+      "quaternion": [
+        -0.00208,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "lensMm": 28.0,
+      "sensorWidthMm": 36.0
+    },
+    "CAM_RECEP_STAIRS": {
+      "position": [
+        0.85,
+        1.58,
+        -11.45
+      ],
+      "quaternion": [
+        -0.02984,
+        0.6082,
+        0.02289,
+        0.79289
+      ],
+      "lensMm": 26.0,
+      "sensorWidthMm": 36.0
+    },
+    "CAM_RECEP_VERA_104": {
+      "position": [
+        -0.52,
+        1.56,
+        -4.35
+      ],
+      "quaternion": [
+        -0.03121,
+        -0.31138,
+        -0.01023,
+        0.94972
+      ],
+      "lensMm": 34.0,
+      "sensorWidthMm": 36.0
+    },
+    "CAM_RECEP_VOID_DOOR": {
+      "position": [
+        0.0,
+        1.56,
+        -19.6
+      ],
+      "quaternion": [
+        -0.03177,
+        0.0,
+        0.0,
+        0.9995
+      ],
+      "lensMm": 32.0,
+      "sensorWidthMm": 36.0
+    }
+  },
+  "lights": [
+    {
+      "name": "LGT_Alcove_Vera104",
+      "type": "POINT",
+      "position": [
+        2.35,
+        2.4,
+        -7.0
+      ],
+      "direction": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "color": [
+        1.0,
+        0.72,
+        0.42
+      ],
+      "energy": 62.0,
+      "size": 0.4
+    },
+    {
+      "name": "LGT_Fluor_Bay0",
+      "type": "POINT",
+      "position": [
+        0.0,
+        2.66,
+        -1.8
+      ],
+      "direction": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "color": [
+        0.86,
+        0.95,
+        0.88
+      ],
+      "energy": 44.0,
+      "size": 0.35
+    },
+    {
+      "name": "LGT_Fluor_Bay1",
+      "type": "POINT",
+      "position": [
+        0.0,
+        2.66,
+        -6.0
+      ],
+      "direction": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "color": [
+        0.88,
+        0.95,
+        0.87
+      ],
+      "energy": 44.0,
+      "size": 0.35
+    },
+    {
+      "name": "LGT_Fluor_Bay2",
+      "type": "POINT",
+      "position": [
+        0.0,
+        2.66,
+        -10.0
+      ],
+      "direction": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "color": [
+        0.82,
+        0.9,
+        0.88
+      ],
+      "energy": 26.0,
+      "size": 0.35
+    },
+    {
+      "name": "LGT_Fluor_Bay4_Flicker",
+      "type": "POINT",
+      "position": [
+        0.0,
+        2.66,
+        -18.0
+      ],
+      "direction": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "color": [
+        0.92,
+        0.88,
+        0.7
+      ],
+      "energy": 18.0,
+      "size": 0.3
+    },
+    {
+      "name": "LGT_Fluor_Bay5_Exit",
+      "type": "POINT",
+      "position": [
+        0.0,
+        2.66,
+        -22.2
+      ],
+      "direction": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "color": [
+        0.78,
+        0.88,
+        0.98
+      ],
+      "energy": 38.0,
+      "size": 0.35
+    },
+    {
+      "name": "LGT_Phone_Graze",
+      "type": "POINT",
+      "position": [
+        -0.55,
+        2.15,
+        0.95
+      ],
+      "direction": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "color": [
+        0.95,
+        0.86,
+        0.68
+      ],
+      "energy": 8.5,
+      "size": 0.25
+    },
+    {
+      "name": "LGT_Stairwell_Abyss",
+      "type": "POINT",
+      "position": [
+        -3.95,
+        2.45,
+        -13.0
+      ],
+      "direction": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "color": [
+        0.78,
+        0.9,
+        0.94
+      ],
+      "energy": 210.0,
+      "size": 0.55
+    }
+  ]
+}

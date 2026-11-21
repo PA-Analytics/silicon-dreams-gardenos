@@ -1,0 +1,694 @@
+{
+  "source": "SILICON_V1.0.blend",
+  "viewTransform": "AgX",
+  "look": "AgX - Medium High Contrast",
+  "exposure": 0.02,
+  "cameras": [
+    {
+      "name": "CAM_01_front",
+      "position": [
+        0.0,
+        4.2,
+        64.0
+      ],
+      "target": [
+        0.0,
+        4.2,
+        -3.0
+      ],
+      "forward": [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "quaternion": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "lensMm": 50.0,
+      "sensorWidthMm": 36.0,
+      "fov43Deg": 30.219,
+      "shiftX": 0.0,
+      "shiftY": 0.0
+    },
+    {
+      "name": "CAM_02_threequarter",
+      "position": [
+        0.0,
+        7.0,
+        41.0
+      ],
+      "target": [
+        0.0,
+        7.0,
+        -2.5
+      ],
+      "forward": [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "quaternion": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "lensMm": 40.0,
+      "sensorWidthMm": 36.0,
+      "fov43Deg": 37.299,
+      "shiftX": -0.0107,
+      "shiftY": -0.0372
+    },
+    {
+      "name": "CAM_03_rear",
+      "position": [
+        9.0,
+        -3.5,
+        -66.0
+      ],
+      "target": [
+        -0.5,
+        4.6,
+        -6.0
+      ],
+      "forward": [
+        -0.155013,
+        0.132169,
+        0.979031
+      ],
+      "quaternion": [
+        0.005195,
+        0.99473,
+        -0.066026,
+        0.078262
+      ],
+      "lensMm": 45.0,
+      "sensorWidthMm": 36.0,
+      "fov43Deg": 33.398,
+      "shiftX": 0.0,
+      "shiftY": 0.0
+    },
+    {
+      "name": "CAM_04_underside",
+      "position": [
+        13.0,
+        -12.5,
+        27.0
+      ],
+      "target": [
+        -1.2,
+        -2.4,
+        -2.5
+      ],
+      "forward": [
+        -0.414451,
+        0.294785,
+        -0.861007
+      ],
+      "quaternion": [
+        0.145324,
+        0.219949,
+        -0.033156,
+        0.964056
+      ],
+      "lensMm": 28.0,
+      "sensorWidthMm": 36.0,
+      "fov43Deg": 51.481,
+      "shiftX": 0.0,
+      "shiftY": 0.0
+    },
+    {
+      "name": "CAM_05_window",
+      "position": [
+        4.6,
+        8.75,
+        4.6
+      ],
+      "target": [
+        1.65,
+        7.95,
+        -1.0
+      ],
+      "forward": [
+        -0.462393,
+        -0.125395,
+        -0.877763
+      ],
+      "quaternion": [
+        -0.060985,
+        0.239581,
+        0.015081,
+        0.968842
+      ],
+      "lensMm": 58.0,
+      "sensorWidthMm": 36.0,
+      "fov43Deg": 26.206,
+      "shiftX": 0.0,
+      "shiftY": 0.0
+    },
+    {
+      "name": "CAM_BIBLE_01_island",
+      "position": [
+        0.0,
+        4.2,
+        64.0
+      ],
+      "target": [
+        0.0,
+        4.20001,
+        -2.5
+      ],
+      "forward": [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "quaternion": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "lensMm": 50.0,
+      "sensorWidthMm": 36.0,
+      "fov43Deg": 30.219,
+      "shiftX": 0.0,
+      "shiftY": 0.0
+    },
+    {
+      "name": "CAM_BIBLE_02_facade",
+      "position": [
+        0.0,
+        10.0,
+        35.0
+      ],
+      "target": [
+        0.0,
+        9.00969,
+        -2.63184
+      ],
+      "forward": [
+        0.0,
+        -0.026307,
+        -0.999654
+      ],
+      "quaternion": [
+        -0.013154,
+        0.0,
+        0.0,
+        0.999913
+      ],
+      "lensMm": 50.0,
+      "sensorWidthMm": 36.0,
+      "fov43Deg": 30.219,
+      "shiftX": 0.0,
+      "shiftY": 0.0
+    },
+    {
+      "name": "CAM_BIBLE_03_windows",
+      "position": [
+        0.0,
+        11.0,
+        16.0
+      ],
+      "target": [
+        0.0,
+        11.0,
+        -2.5
+      ],
+      "forward": [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "quaternion": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "lensMm": 42.0,
+      "sensorWidthMm": 36.0,
+      "fov43Deg": 35.638,
+      "shiftX": 0.0,
+      "shiftY": 0.0
+    },
+    {
+      "name": "CAM_BIBLE_04_computer",
+      "position": [
+        -14.0,
+        7.0,
+        13.0
+      ],
+      "target": [
+        -5.65854,
+        0.04878,
+        -3.68293
+      ],
+      "forward": [
+        0.419058,
+        -0.349215,
+        -0.838116
+      ],
+      "quaternion": [
+        -0.172676,
+        -0.226108,
+        -0.040763,
+        0.957808
+      ],
+      "lensMm": 48.0,
+      "sensorWidthMm": 36.0,
+      "fov43Deg": 31.417,
+      "shiftX": 0.0,
+      "shiftY": 0.0
+    },
+    {
+      "name": "CAM_BIBLE_05_television",
+      "position": [
+        13.0,
+        5.0,
+        10.0
+      ],
+      "target": [
+        4.60748,
+        0.24424,
+        -3.98753
+      ],
+      "forward": [
+        -0.493932,
+        -0.279895,
+        -0.823219
+      ],
+      "quaternion": [
+        -0.136238,
+        0.264253,
+        0.037736,
+        0.954037
+      ],
+      "lensMm": 55.0,
+      "sensorWidthMm": 36.0,
+      "fov43Deg": 27.582,
+      "shiftX": 0.0,
+      "shiftY": 0.0
+    },
+    {
+      "name": "CAM_BIBLE_06_tree",
+      "position": [
+        -23.0,
+        10.0,
+        17.0
+      ],
+      "target": [
+        -6.61531,
+        3.69819,
+        -6.94685
+      ],
+      "forward": [
+        0.551819,
+        -0.212238,
+        -0.806505
+      ],
+      "quaternion": [
+        -0.101961,
+        -0.293856,
+        -0.031543,
+        0.949872
+      ],
+      "lensMm": 45.0,
+      "sensorWidthMm": 36.0,
+      "fov43Deg": 33.398,
+      "shiftX": 0.0,
+      "shiftY": 0.0
+    },
+    {
+      "name": "CAM_BIBLE_07_vines",
+      "position": [
+        -20.0,
+        -0.5,
+        19.0
+      ],
+      "target": [
+        -6.93219,
+        -2.95022,
+        -5.50214
+      ],
+      "forward": [
+        0.468767,
+        -0.087894,
+        -0.878938
+      ],
+      "quaternion": [
+        -0.042676,
+        -0.242301,
+        -0.010669,
+        0.969203
+      ],
+      "lensMm": 50.0,
+      "sensorWidthMm": 36.0,
+      "fov43Deg": 30.219,
+      "shiftX": 0.0,
+      "shiftY": 0.0
+    },
+    {
+      "name": "CAM_BIBLE_08_underside",
+      "position": [
+        13.0,
+        -12.5,
+        27.0
+      ],
+      "target": [
+        -1.80434,
+        -2.59569,
+        -3.7555
+      ],
+      "forward": [
+        -0.416542,
+        0.278673,
+        -0.865352
+      ],
+      "quaternion": [
+        0.137211,
+        0.22022,
+        -0.031305,
+        0.965244
+      ],
+      "lensMm": 28.0,
+      "sensorWidthMm": 36.0,
+      "fov43Deg": 51.481,
+      "shiftX": 0.0,
+      "shiftY": 0.0
+    },
+    {
+      "name": "CAM_BIBLE_09_entrance",
+      "position": [
+        0.0,
+        2.6,
+        10.0
+      ],
+      "target": [
+        0.0,
+        1.59338,
+        -2.30309
+      ],
+      "forward": [
+        0.0,
+        -0.081546,
+        -0.99667
+      ],
+      "quaternion": [
+        -0.040807,
+        0.0,
+        0.0,
+        0.999167
+      ],
+      "lensMm": 50.0,
+      "sensorWidthMm": 36.0,
+      "fov43Deg": 30.219,
+      "shiftX": 0.0,
+      "shiftY": 0.0
+    },
+    {
+      "name": "CAM_BIBLE_10_establishing",
+      "position": [
+        30.0,
+        20.0,
+        42.0
+      ],
+      "target": [
+        0.21219,
+        4.11317,
+        -2.68171
+      ],
+      "forward": [
+        -0.531912,
+        -0.283686,
+        -0.797867
+      ],
+      "quaternion": [
+        -0.137173,
+        0.286792,
+        0.041533,
+        0.947211
+      ],
+      "lensMm": 35.0,
+      "sensorWidthMm": 36.0,
+      "fov43Deg": 42.185,
+      "shiftX": 0.0,
+      "shiftY": 0.0
+    },
+    {
+      "name": "CAM_orbit",
+      "position": [
+        0.0,
+        9.0,
+        58.0
+      ],
+      "target": [
+        0.0,
+        4.37424,
+        -2.5286
+      ],
+      "forward": [
+        0.0,
+        -0.076201,
+        -0.997092
+      ],
+      "quaternion": [
+        -0.038128,
+        0.0,
+        0.0,
+        0.999273
+      ],
+      "lensMm": 42.0,
+      "sensorWidthMm": 36.0,
+      "fov43Deg": 35.638,
+      "shiftX": 0.0,
+      "shiftY": 0.0
+    },
+    {
+      "name": "CAM_photo",
+      "position": [
+        0.0,
+        7.0,
+        41.0
+      ],
+      "target": [
+        0.0,
+        7.0,
+        -2.5
+      ],
+      "forward": [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "quaternion": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "lensMm": 40.0,
+      "sensorWidthMm": 36.0,
+      "fov43Deg": 37.299,
+      "shiftX": -0.0107,
+      "shiftY": -0.0372
+    },
+    {
+      "name": "V4_CAM_Alternative",
+      "position": [
+        6.0,
+        10.0,
+        55.0
+      ],
+      "target": [
+        -0.05362,
+        4.14816,
+        -2.50943
+      ],
+      "forward": [
+        -0.104153,
+        -0.100681,
+        -0.989452
+      ],
+      "quaternion": [
+        -0.050335,
+        0.052348,
+        0.002642,
+        0.997356
+      ],
+      "lensMm": 45.0,
+      "sensorWidthMm": 36.0,
+      "fov43Deg": 33.398,
+      "shiftX": 0.0,
+      "shiftY": 0.0
+    }
+  ],
+  "lights": [
+    {
+      "name": "LGT_Screen_CRT",
+      "type": "AREA",
+      "position": [
+        -7.93957,
+        2.67482,
+        1.19039
+      ],
+      "direction": [
+        0.325568,
+        -0.0,
+        0.945519
+      ],
+      "color": [
+        0.5,
+        0.86,
+        1.0
+      ],
+      "energy": 22.0,
+      "angle": null,
+      "size": 0.9577,
+      "sizeY": 0.73,
+      "castShadow": true
+    },
+    {
+      "name": "LGT_Screen_TV",
+      "type": "AREA",
+      "position": [
+        6.01052,
+        1.74047,
+        0.08854
+      ],
+      "direction": [
+        -0.156434,
+        0.0,
+        0.987688
+      ],
+      "color": [
+        0.5,
+        0.86,
+        1.0
+      ],
+      "energy": 26.0,
+      "angle": null,
+      "size": 1.0752,
+      "sizeY": 1.1707,
+      "castShadow": true
+    },
+    {
+      "name": "LGT_SkyFill",
+      "type": "SUN",
+      "position": [
+        40.0,
+        50.0,
+        30.0
+      ],
+      "direction": [
+        -0.591364,
+        -0.645124,
+        -0.483843
+      ],
+      "color": [
+        0.48,
+        0.65,
+        1.0
+      ],
+      "energy": 0.18,
+      "angle": 0.6981,
+      "size": null,
+      "sizeY": null,
+      "castShadow": false
+    },
+    {
+      "name": "LGT_Sun",
+      "type": "SUN",
+      "position": [
+        -36.02703,
+        54.22568,
+        33.62523
+      ],
+      "direction": [
+        0.600451,
+        -0.570428,
+        -0.56042
+      ],
+      "color": [
+        1.0,
+        0.85,
+        0.67
+      ],
+      "energy": 5.1,
+      "angle": 0.135,
+      "size": null,
+      "sizeY": null,
+      "castShadow": true
+    },
+    {
+      "name": "LGT_Win_R3L",
+      "type": "POINT",
+      "position": [
+        -1.63379,
+        13.66867,
+        -3.4
+      ],
+      "direction": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "color": [
+        1.0,
+        0.61,
+        0.29
+      ],
+      "energy": 260.0,
+      "angle": null,
+      "size": null,
+      "sizeY": null,
+      "castShadow": true
+    },
+    {
+      "name": "LGT_Win_R5R",
+      "type": "POINT",
+      "position": [
+        1.84994,
+        8.06867,
+        -3.4
+      ],
+      "direction": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "color": [
+        1.0,
+        0.61,
+        0.29
+      ],
+      "energy": 260.0,
+      "angle": null,
+      "size": null,
+      "sizeY": null,
+      "castShadow": true
+    }
+  ],
+  "orbit": {
+    "center": [
+      0.0,
+      -0.0,
+      -3.5
+    ],
+    "target": [
+      0.0,
+      4.3,
+      -3.5
+    ],
+    "cameraPos": [
+      0.0,
+      9.0,
+      58.0
+    ],
+    "lensMm": 42.0
+  }
+}

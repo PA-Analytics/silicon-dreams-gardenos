@@ -1,0 +1,298 @@
+{
+ "source": "experiments/gardenos-reconstruction/gardenos_scene_v03.blend",
+ "exposure": 0.0,
+ "sky": [
+  [
+   0.0,
+   [
+    0.014000000432133675,
+    0.03400000184774399,
+    0.07800000160932541
+   ]
+  ],
+  [
+   0.23999999463558197,
+   [
+    0.02500000037252903,
+    0.06199999898672104,
+    0.15700000524520874
+   ]
+  ],
+  [
+   1.0,
+   [
+    0.04699999839067459,
+    0.09099999815225601,
+    0.20499999821186066
+   ]
+  ]
+ ],
+ "cameras": {
+  "CAM_LEFT_35": {
+   "position": [
+    0.1,
+    1.21,
+    -0.16
+   ],
+   "quaternion": [
+    -0.03908,
+    0.33166,
+    0.01375,
+    0.94249
+   ],
+   "lensMm": 22.0,
+   "sensorWidthMm": 36.0
+  },
+  "CAM_LOGIN_FRONT": {
+   "position": [
+    0.0,
+    1.2,
+    -0.18
+   ],
+   "quaternion": [
+    -0.03429,
+    0.0,
+    0.0,
+    0.99941
+   ],
+   "lensMm": 20.5,
+   "sensorWidthMm": 36.0
+  },
+  "CAM_RIGHT_35": {
+   "position": [
+    -0.1,
+    1.21,
+    -0.16
+   ],
+   "quaternion": [
+    -0.02606,
+    -0.39486,
+    -0.01121,
+    0.9183
+   ],
+   "lensMm": 22.0,
+   "sensorWidthMm": 36.0
+  },
+  "CAM_ROOM_REVERSE": {
+   "position": [
+    -0.82,
+    1.48,
+    -1.05
+   ],
+   "quaternion": [
+    -0.01478,
+    -0.9804,
+    -0.08097,
+    0.17901
+   ],
+   "lensMm": 24.0,
+   "sensorWidthMm": 36.0
+  },
+  "CAM_ROOM_WIDE": {
+   "position": [
+    -1.52,
+    1.66,
+    1.78
+   ],
+   "quaternion": [
+    -0.09737,
+    -0.29407,
+    -0.03013,
+    0.95033
+   ],
+   "lensMm": 22.0,
+   "sensorWidthMm": 36.0
+  }
+ },
+ "lights": [
+  {
+   "name": "LGT_Ceiling_Warm",
+   "type": "POINT",
+   "position": [
+    0.0,
+    2.34,
+    0.45
+   ],
+   "direction": [
+    0.0,
+    -1.0,
+    0.0
+   ],
+   "color": [
+    1.0,
+    0.72,
+    0.38
+   ],
+   "energy": 24.0,
+   "size": 0.2
+  },
+  {
+   "name": "LGT_Corner_Sconce",
+   "type": "POINT",
+   "position": [
+    1.22,
+    1.72,
+    2.02
+   ],
+   "direction": [
+    0.0,
+    -1.0,
+    0.0
+   ],
+   "color": [
+    1.0,
+    0.6,
+    0.22
+   ],
+   "energy": 26.0,
+   "size": 0.12
+  },
+  {
+   "name": "LGT_CRT_Glow",
+   "type": "AREA",
+   "position": [
+    0.0,
+    1.09,
+    -1.25
+   ],
+   "direction": [
+    -0.0,
+    -0.6,
+    0.8
+   ],
+   "color": [
+    0.36,
+    0.82,
+    0.86
+   ],
+   "energy": 0.47,
+   "size": 0.28
+  },
+  {
+   "name": "LGT_Desk_SoftFill",
+   "type": "POINT",
+   "position": [
+    0.15,
+    1.65,
+    -0.75
+   ],
+   "direction": [
+    0.0,
+    -1.0,
+    0.0
+   ],
+   "color": [
+    0.9,
+    0.78,
+    0.6
+   ],
+   "energy": 2.0,
+   "size": 0.35
+  },
+  {
+   "name": "LGT_Exterior_Twilight",
+   "type": "AREA",
+   "position": [
+    0.0,
+    1.65,
+    -2.45
+   ],
+   "direction": [
+    -0.0,
+    -0.3796,
+    0.9252
+   ],
+   "color": [
+    0.26,
+    0.48,
+    0.96
+   ],
+   "energy": 9.0,
+   "size": 1.65
+  },
+  {
+   "name": "LGT_FilingLamp",
+   "type": "POINT",
+   "position": [
+    -1.07,
+    1.46,
+    -1.7362
+   ],
+   "direction": [
+    0.0,
+    -1.0,
+    0.0
+   ],
+   "color": [
+    1.0,
+    0.58,
+    0.2
+   ],
+   "energy": 12.0,
+   "size": 0.1
+  },
+  {
+   "name": "LGT_Shed_WindowHalo",
+   "type": "POINT",
+   "position": [
+    4.6,
+    1.17,
+    -14.95
+   ],
+   "direction": [
+    0.0,
+    -1.0,
+    0.0
+   ],
+   "color": [
+    1.0,
+    0.56,
+    0.16
+   ],
+   "energy": 12.0,
+   "size": 0.3
+  },
+  {
+   "name": "Soft lamplight on panelling",
+   "type": "AREA",
+   "position": [
+    -0.78,
+    1.68,
+    -1.25
+   ],
+   "direction": [
+    -0.2359,
+    -0.1704,
+    -0.9567
+   ],
+   "color": [
+    1.0,
+    0.585,
+    0.27
+   ],
+   "energy": 3.5,
+   "size": 0.46
+  },
+  {
+   "name": "Warm ceiling bounce",
+   "type": "AREA",
+   "position": [
+    -0.52,
+    1.96,
+    -0.68
+   ],
+   "direction": [
+    0.383,
+    -0.7292,
+    -0.5671
+   ],
+   "color": [
+    1.0,
+    0.77,
+    0.48
+   ],
+   "energy": 12.0,
+   "size": 0.85
+  }
+ ]
+}
