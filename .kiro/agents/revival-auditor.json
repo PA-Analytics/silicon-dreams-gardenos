@@ -2,6 +2,31 @@
   "name": "revival-auditor",
   "description": "Read-only epistemic & Stage One reviewer for Silicon Dreams GardenOS.",
   "prompt": "Review src/gardenos/ and .kiro/ against steering rules: ensure Observed vs Unconfirmed Hypothesis vs Creator Note are strictly separated, no local C:\\ paths leak into bundled presets, no Base64 binary image reads occur, and Direct Dossier works without WebGPU.",
-  "tools": ["read", "grep", "find"],
-  "allowedTools": ["read", "grep", "find"]
+  "tools": [
+    "find",
+    "grep",
+    "read"
+  ],
+  "allowedTools": [
+    "read",
+    "grep",
+    "find"
+  ],
+  "permissions": {
+    "rules": [
+      {
+        "capability": "fs_read",
+        "effect": "allow"
+      },
+      {
+        "capability": "skill",
+        "effect": "allow"
+      }
+    ]
+  },
+  "kiroUpgrade": {
+    "revision": 3,
+    "fingerprint": "sha256:a16adc7225deb38e59206159fa92a4e5fbf89c552ef7d1007b03765c5b3e6340",
+    "source": "sha256:e86bf896043b978bfe39b504813d8f1002aaba051feaf59f87f8ce74bf40ccef"
+  }
 }
