@@ -1,0 +1,182 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "1. Write bug condition exploration tests (before the fix)": [
+      {
+        "executionId": "7252fa29-0303-49ad-86db-1097e2027061",
+        "chatSessionId": "sess_b3314a82-93dc-4254-b30a-7dd82ba12351",
+        "timestamp": 1795562670955
+      },
+      {
+        "executionId": "7252fa29-0303-49ad-86db-1097e2027061",
+        "chatSessionId": "sess_b3314a82-93dc-4254-b30a-7dd82ba12351",
+        "timestamp": 1795562673245
+      },
+      {
+        "executionId": "7252fa29-0303-49ad-86db-1097e2027061",
+        "chatSessionId": "sess_b3314a82-93dc-4254-b30a-7dd82ba12351",
+        "timestamp": 1795562722313
+      }
+    ],
+    "2. Write preservation property tests (before the fix)": [
+      {
+        "executionId": "7252fa29-0303-49ad-86db-1097e2027061",
+        "chatSessionId": "sess_b3314a82-93dc-4254-b30a-7dd82ba12351",
+        "timestamp": 1795562670963
+      },
+      {
+        "executionId": "7252fa29-0303-49ad-86db-1097e2027061",
+        "chatSessionId": "sess_b3314a82-93dc-4254-b30a-7dd82ba12351",
+        "timestamp": 1795562722328
+      },
+      {
+        "executionId": "7252fa29-0303-49ad-86db-1097e2027061",
+        "chatSessionId": "sess_b3314a82-93dc-4254-b30a-7dd82ba12351",
+        "timestamp": 1795562781745
+      }
+    ],
+    "3.1 Reorder PRESET_CHIPS in login.ts": [
+      {
+        "executionId": "7252fa29-0303-49ad-86db-1097e2027061",
+        "chatSessionId": "sess_b3314a82-93dc-4254-b30a-7dd82ba12351",
+        "timestamp": 1795562670972
+      },
+      {
+        "executionId": "7252fa29-0303-49ad-86db-1097e2027061",
+        "chatSessionId": "sess_b3314a82-93dc-4254-b30a-7dd82ba12351",
+        "timestamp": 1795562781760
+      },
+      {
+        "executionId": "7252fa29-0303-49ad-86db-1097e2027061",
+        "chatSessionId": "sess_b3314a82-93dc-4254-b30a-7dd82ba12351",
+        "timestamp": 1795562799600
+      }
+    ],
+    "3.2 Remove the three STUB todo tracks from the trazo preset": [
+      {
+        "executionId": "7252fa29-0303-49ad-86db-1097e2027061",
+        "chatSessionId": "sess_b3314a82-93dc-4254-b30a-7dd82ba12351",
+        "timestamp": 1795562670979
+      },
+      {
+        "executionId": "7252fa29-0303-49ad-86db-1097e2027061",
+        "chatSessionId": "sess_b3314a82-93dc-4254-b30a-7dd82ba12351",
+        "timestamp": 1795562799874
+      },
+      {
+        "executionId": "7252fa29-0303-49ad-86db-1097e2027061",
+        "chatSessionId": "sess_b3314a82-93dc-4254-b30a-7dd82ba12351",
+        "timestamp": 1795562815920
+      }
+    ],
+    "3.3 Reclassify the trazo tapeClue and add the interpretation label": [
+      {
+        "executionId": "7252fa29-0303-49ad-86db-1097e2027061",
+        "chatSessionId": "sess_b3314a82-93dc-4254-b30a-7dd82ba12351",
+        "timestamp": 1795562670986
+      },
+      {
+        "executionId": "7252fa29-0303-49ad-86db-1097e2027061",
+        "chatSessionId": "sess_b3314a82-93dc-4254-b30a-7dd82ba12351",
+        "timestamp": 1795562815934
+      },
+      {
+        "executionId": "7252fa29-0303-49ad-86db-1097e2027061",
+        "chatSessionId": "sess_b3314a82-93dc-4254-b30a-7dd82ba12351",
+        "timestamp": 1795562830782
+      }
+    ],
+    "3.4 Verify the bug condition exploration tests now pass": [
+      {
+        "executionId": "7252fa29-0303-49ad-86db-1097e2027061",
+        "chatSessionId": "sess_b3314a82-93dc-4254-b30a-7dd82ba12351",
+        "timestamp": 1795562670994
+      },
+      {
+        "executionId": "7252fa29-0303-49ad-86db-1097e2027061",
+        "chatSessionId": "sess_b3314a82-93dc-4254-b30a-7dd82ba12351",
+        "timestamp": 1795562831101
+      },
+      {
+        "executionId": "7252fa29-0303-49ad-86db-1097e2027061",
+        "chatSessionId": "sess_b3314a82-93dc-4254-b30a-7dd82ba12351",
+        "timestamp": 1795562843300
+      }
+    ],
+    "3.5 Verify preservation tests still pass": [
+      {
+        "executionId": "7252fa29-0303-49ad-86db-1097e2027061",
+        "chatSessionId": "sess_b3314a82-93dc-4254-b30a-7dd82ba12351",
+        "timestamp": 1795562671001
+      },
+      {
+        "executionId": "7252fa29-0303-49ad-86db-1097e2027061",
+        "chatSessionId": "sess_b3314a82-93dc-4254-b30a-7dd82ba12351",
+        "timestamp": 1795562843315
+      },
+      {
+        "executionId": "7252fa29-0303-49ad-86db-1097e2027061",
+        "chatSessionId": "sess_b3314a82-93dc-4254-b30a-7dd82ba12351",
+        "timestamp": 1795562862360
+      }
+    ],
+    "3.6 Update the existing trazo assertions in tests/story-ingest.test.ts": [
+      {
+        "executionId": "7252fa29-0303-49ad-86db-1097e2027061",
+        "chatSessionId": "sess_b3314a82-93dc-4254-b30a-7dd82ba12351",
+        "timestamp": 1795562671008
+      },
+      {
+        "executionId": "7252fa29-0303-49ad-86db-1097e2027061",
+        "chatSessionId": "sess_b3314a82-93dc-4254-b30a-7dd82ba12351",
+        "timestamp": 1795562862758
+      },
+      {
+        "executionId": "7252fa29-0303-49ad-86db-1097e2027061",
+        "chatSessionId": "sess_b3314a82-93dc-4254-b30a-7dd82ba12351",
+        "timestamp": 1795562891027
+      }
+    ],
+    "3.7 Add the chip order regression test against gardenos.html": [
+      {
+        "executionId": "7252fa29-0303-49ad-86db-1097e2027061",
+        "chatSessionId": "sess_b3314a82-93dc-4254-b30a-7dd82ba12351",
+        "timestamp": 1795562671015
+      },
+      {
+        "executionId": "7252fa29-0303-49ad-86db-1097e2027061",
+        "chatSessionId": "sess_b3314a82-93dc-4254-b30a-7dd82ba12351",
+        "timestamp": 1795562891470
+      },
+      {
+        "executionId": "7252fa29-0303-49ad-86db-1097e2027061",
+        "chatSessionId": "sess_b3314a82-93dc-4254-b30a-7dd82ba12351",
+        "timestamp": 1795562913969
+      }
+    ],
+    "4. Checkpoint: final gate": [
+      {
+        "executionId": "7252fa29-0303-49ad-86db-1097e2027061",
+        "chatSessionId": "sess_b3314a82-93dc-4254-b30a-7dd82ba12351",
+        "timestamp": 1795562671023
+      },
+      {
+        "executionId": "7252fa29-0303-49ad-86db-1097e2027061",
+        "chatSessionId": "sess_b3314a82-93dc-4254-b30a-7dd82ba12351",
+        "timestamp": 1795562914228
+      },
+      {
+        "executionId": "7252fa29-0303-49ad-86db-1097e2027061",
+        "chatSessionId": "sess_b3314a82-93dc-4254-b30a-7dd82ba12351",
+        "timestamp": 1795562930647
+      }
+    ],
+    "3. Fix the chip order and trazo findings": [
+      {
+        "executionId": "7252fa29-0303-49ad-86db-1097e2027061",
+        "chatSessionId": "sess_b3314a82-93dc-4254-b30a-7dd82ba12351",
+        "timestamp": 1795562913976
+      }
+    ]
+  }
+}

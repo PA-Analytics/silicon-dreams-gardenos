@@ -6,6 +6,7 @@ import type { LocalFileLike } from '../src/gardenos/ingest.ts';
 import { buildRepoGraph, extractLocalImports } from '../src/gardenos/repo-graph.ts';
 import { formatArchiveCard, formatKiroDesignMd, formatKiroHookJson, formatKiroRequirementsMd, formatKiroRevivalSpec, formatKiroTasksMd, loadProjectMemory, saveProjectMemory } from '../src/gardenos/kiro-export.ts';
 import { createStoryEngine, lineSeconds, receptionCues, typingMs } from '../src/gardenos/story.ts';
+import { PRESET_LIST } from '../src/gardenos/presets.ts';
 
 for (const id of ['trazo', 'boundary', 'sentinel-lab'] as const) {
   test(`preset ${id}: provenance, real metadata & no local workstation paths`, () => {
@@ -15,13 +16,24 @@ for (const id of ['trazo', 'boundary', 'sentinel-lab'] as const) {
     assert.equal(d.isDemo, id === 'sentinel-lab');
     assert.ok(d.knownTotalFiles >= d.graph.nodes.length);
     assert.ok(d.graph.edges.length > 0);
-    assert.ok(d.todos.length >= 2);
+    if (id === 'trazo') assert.equal(d.todos.length, 0);
+    else assert.ok(d.todos.length >= 2);
+    assert.ok(!d.todos.some((t) => t.tag === 'STUB'));
     assert.ok(d.reentry.runCommands.length > 0);
     assert.ok(!/C:\\disco/i.test(d.sourceLabel + d.honestyNote + d.primaryPiece.path));
     assert.ok(!d.todos.some((t) => /Todo empieza/.test(t.excerpt)));
     const expectedProv = d.isDemo ? 'DEMO' : 'SNAPSHOT';
     for (const p of [d.primaryPiece, d.tapeClue, d.towerRecord]) assert.equal(p.provenance, expectedProv);
-    if (id === 'trazo') { assert.equal(d.galleryImages.length, 3); assert.equal(d.tapeClue.lineNumber, 216); }
+    if (id === 'trazo') {
+      assert.equal(d.galleryImages.length, 3);
+      assert.equal(d.tapeClue.lineNumber, 216);
+      assert.equal(d.tapeClue.kind, 'file');
+      assert.equal(d.tapeClue.path, 'src/utils/companionPathSampler.ts');
+      assert.equal(d.tapeClue.excerpt, '// Fallback: simple line if parsing yielded no segments');
+      const spec = formatKiroRevivalSpec(d, 'restore', 'Check validation first');
+      assert.ok(spec.includes('No TODO/FIXME line markers verified'));
+      assert.ok(!spec.includes('[STUB]'));
+    }
     if (id === 'boundary') { assert.match(d.primaryPiece.observedFact, /src\/main\.py:280/); assert.equal(d.tapeClue.lineNumber, 294); }
   });
 }
@@ -155,4 +167,113 @@ test('localStorage memory & receptionCues', () => {
     const cues = [c.l1, c.l2, c.l3, c.clr];
     lines.forEach((line, i) => assert.ok(cues[i + 1] - cues[i] >= lineSeconds(line) - 1e-9));
   }
+});
+
+test('bug 1.1: PRESET_CHIPS in login.ts lists BOUNDARY, Trazo, Sentinel Lab in that order', () => {
+  const source = readFileSync(new URL('../src/gardenos/login.ts', import.meta.url), 'utf8');
+  const literal = source.match(/export const PRESET_CHIPS[^=]*=\s*\[([\s\S]*?)\];/);
+  assert.ok(literal, 'PRESET_CHIPS literal must exist in login.ts');
+  const ids = [...literal[1].matchAll(/id:\s*'([^']+)'/g)].map((m) => m[1]);
+  assert.deepEqual(ids, ['boundary', 'trazo', 'sentinel-lab']);
+});
+
+test('bug 1.2: trazo preset has no fallback or eval-rule todo tracks', () => {
+  const d = createPresetDossier('trazo', 'Ada');
+  const forbidden = ['trazo-spa-fallback', 'trazo-eval-rule', 'trazo-sampler-fallback'];
+  const present = d.todos.map((t) => t.id).filter((id) => forbidden.includes(id));
+  assert.deepEqual(present, []);
+});
+
+test('bug 1.2: trazo preset has no todo track tagged STUB', () => {
+  const d = createPresetDossier('trazo', 'Ada');
+  const stubs = d.todos.filter((t) => t.tag === 'STUB').map((t) => t.id);
+  assert.deepEqual(stubs, []);
+});
+
+test('bug 1.3: trazo tapeClue is a file clue at companionPathSampler.ts:216', () => {
+  const clue = createPresetDossier('trazo', 'Ada').tapeClue;
+  assert.equal(clue.kind, 'file');
+  assert.equal(clue.path, 'src/utils/companionPathSampler.ts');
+  assert.equal(clue.lineNumber, 216);
+  assert.equal(clue.excerpt, '// Fallback: simple line if parsing yielded no segments');
+});
+
+test('bug 1.4: trazo tapeClue.interpretation starts with the Hypothesis (unconfirmed) label', () => {
+  const label = 'Hypothesis (unconfirmed)';
+  const interpretation = createPresetDossier('trazo', 'Ada').tapeClue.interpretation;
+  assert.equal(interpretation.slice(0, label.length), label);
+});
+
+test('control: dossier modal buttons appear in BOUNDARY, TRAZO, Sentinel order in gardenos.html', () => {
+  const html = readFileSync(new URL('../gardenos.html', import.meta.url), 'utf8');
+  const positions = ['btnLoadBoundary', 'btnLoadTrazo', 'btnLoadSentinel'].map((id) => html.indexOf(`id="${id}"`));
+  assert.ok(positions.every((p) => p >= 0), `button ids missing, positions: ${positions}`);
+  assert.deepEqual(positions, [...positions].sort((a, b) => a - b));
+});
+
+// Preservation (Property 2). Values were observed on the unfixed code before these assertions were written.
+
+test('preservation 3.1: boundary todo tracks keep exact id, path, lineNumber and tag', () => {
+  const d = createPresetDossier('boundary', 'Ada');
+  const tuple = (id: string) => {
+    const t = d.todos.find((item) => item.id === id);
+    assert.ok(t, `todo ${id} must exist`);
+    return [t.id, t.path, t.lineNumber, t.tag];
+  };
+  assert.deepEqual(tuple('boundary-todo-report'), ['boundary-todo-report', 'src/main.py', 294, 'TODO']);
+  assert.deepEqual(tuple('boundary-todo-validate'), ['boundary-todo-validate', 'src/main.py', 280, 'TODO']);
+});
+
+test('preservation 3.2: sentinel-lab todo tracks keep exact id, path, lineNumber and tag', () => {
+  const d = createPresetDossier('sentinel-lab', 'Ada');
+  const tuple = (id: string) => {
+    const t = d.todos.find((item) => item.id === id);
+    assert.ok(t, `todo ${id} must exist`);
+    return [t.id, t.path, t.lineNumber, t.tag];
+  };
+  assert.deepEqual(tuple('sentinel-tape-timeout'), ['sentinel-tape-timeout', 'modulo-04-scanner/port_scanner.py', 64, 'TODO']);
+  assert.deepEqual(tuple('sentinel-tape-cidr'), ['sentinel-tape-cidr', 'modulo-04-scanner/cidr_utils.py', 28, 'FIXME']);
+});
+
+test('preservation 3.2: sentinel-lab primary piece, tape clue and tower record keep DEMO provenance', () => {
+  const d = createPresetDossier('sentinel-lab', 'Ada');
+  assert.equal(d.primaryPiece.provenance, 'DEMO');
+  assert.equal(d.tapeClue.provenance, 'DEMO');
+  assert.equal(d.towerRecord.provenance, 'DEMO');
+});
+
+test('preservation 3.3: trazo gallery has 3 images, 5 commits and 4 run commands', () => {
+  const d = createPresetDossier('trazo', 'Ada');
+  assert.equal(d.galleryImages.length, 3);
+  assert.equal(d.commits.length, 5);
+  assert.equal(d.reentry.runCommands.length, 4);
+});
+
+test('preservation 3.5: PRESET_LIST order is trazo, boundary, sentinel-lab', () => {
+  assert.deepEqual(PRESET_LIST.map((p) => p.id), ['trazo', 'boundary', 'sentinel-lab']);
+});
+
+test('preservation 3.5: login reset() defaults presetId to boundary', () => {
+  const source = readFileSync(new URL('../src/gardenos/login.ts', import.meta.url), 'utf8');
+  const reset = source.match(/\breset\(\)\s*\{([^}]*)\}/);
+  assert.ok(reset, 'reset() must exist in login.ts');
+  assert.match(reset[1], /presetId\s*=\s*'boundary'/);
+});
+test('chip order regression: login PRESET_CHIPS ids, labels and gardenos.html modal order agree', () => {
+  const loginSource = readFileSync(new URL('../src/gardenos/login.ts', import.meta.url), 'utf8');
+  const literal = loginSource.match(/export const PRESET_CHIPS[^=]*=\s*\[([\s\S]*?)\];/);
+  assert.ok(literal, 'PRESET_CHIPS literal must exist in login.ts');
+  const chipIds = [...literal[1].matchAll(/id:\s*'([^']+)'/g)].map((m) => m[1]);
+  const chipLabels = [...literal[1].matchAll(/label:\s*'([^']+)'/g)].map((m) => m[1]);
+  assert.deepEqual(chipIds, ['boundary', 'trazo', 'sentinel-lab']);
+  assert.deepEqual(chipLabels, ['BOUNDARY', 'Trazo', 'Sentinel Lab']);
+
+  const html = readFileSync(new URL('../gardenos.html', import.meta.url), 'utf8');
+  const modalIds = ['btnLoadBoundary', 'btnLoadTrazo', 'btnLoadSentinel'];
+  const positions = modalIds.map((id) => html.indexOf(`id="${id}"`));
+  assert.ok(positions.every((p) => p >= 0), `modal button ids missing, positions: ${positions}`);
+  assert.deepEqual(positions, [...positions].sort((a, b) => a - b));
+
+  const chipToModal: Record<string, string> = { boundary: 'btnLoadBoundary', trazo: 'btnLoadTrazo', 'sentinel-lab': 'btnLoadSentinel' };
+  assert.deepEqual(chipIds.map((id) => chipToModal[id]), modalIds);
 });

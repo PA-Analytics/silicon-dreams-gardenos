@@ -9,7 +9,7 @@ Resolved decisions applied in these tasks:
 - Reorder `PRESET_CHIPS` to BOUNDARY, Trazo, Sentinel Lab.
 - Add a source-text regression test comparing `PRESET_CHIPS` order with the modal order in `gardenos.html`.
 
-- [ ] 1. Write bug condition exploration tests (before the fix)
+- [x] 1. Write bug condition exploration tests (before the fix)
   - **Property 1: Bug Condition** - Chip Order and Trazo Findings
   - **CRITICAL**: These tests MUST FAIL on the unfixed code. A failure confirms the bug exists.
   - **DO NOT** change `login.ts`, `presets.ts`, or the test expectations to make these pass at this stage.
@@ -23,7 +23,7 @@ Resolved decisions applied in these tasks:
   - Record the counterexamples in the task notes. Do not fix the code in this task.
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 2.1, 2.3, 2.4, 2.5_
 
-- [ ] 2. Write preservation property tests (before the fix)
+- [x] 2. Write preservation property tests (before the fix)
   - **Property 2: Preservation** - Non-Bug Presets, Dossier Order, and Export Behavior
   - **IMPORTANT**: Follow the observation-first method. Observe the unfixed output first, then assert it.
   - Add to `tests/story-ingest.test.ts` the following assertions. Each one must PASS on the unfixed code.
@@ -36,9 +36,9 @@ Resolved decisions applied in these tasks:
   - Run `npm test`. **EXPECTED OUTCOME**: All preservation and control assertions PASS on the unfixed code.
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8_
 
-- [ ] 3. Fix the chip order and trazo findings
+- [x] 3. Fix the chip order and trazo findings
 
-  - [ ] 3.1 Reorder PRESET_CHIPS in login.ts
+  - [x] 3.1 Reorder PRESET_CHIPS in login.ts
     - Move the `boundary` entry to the first position in `PRESET_CHIPS` (`src/gardenos/login.ts`, lines 10-14).
     - Result: `[{ id: 'boundary', label: 'BOUNDARY' }, { id: 'trazo', label: 'Trazo' }, { id: 'sentinel-lab', label: 'Sentinel Lab' }]`.
     - Keep labels unchanged. Do not edit the draw or hit-test code. Both index by position into `rect.presets`, so the reorder carries through.
@@ -47,7 +47,7 @@ Resolved decisions applied in these tasks:
     - _Preservation: boundary default on reset, labels, PRESET_LIST order (design Property 2)_
     - _Requirements: 2.1, 2.2, 3.5_
 
-  - [ ] 3.2 Remove the three STUB todo tracks from the trazo preset
+  - [x] 3.2 Remove the three STUB todo tracks from the trazo preset
     - In `src/gardenos/presets.ts`, set `PRESETS.trazo.todos` to `[]`, removing `trazo-sampler-fallback`, `trazo-spa-fallback`, and `trazo-eval-rule`.
     - Do not change the todo lists for boundary or sentinel-lab.
     - Do not change the detector in `ingest.ts`.
@@ -56,7 +56,7 @@ Resolved decisions applied in these tasks:
     - _Preservation: empty-list export still states "No TODO/FIXME line markers verified" (design Property 2)_
     - _Requirements: 2.3, 2.4, 3.8_
 
-  - [ ] 3.3 Reclassify the trazo tapeClue and add the interpretation label
+  - [x] 3.3 Reclassify the trazo tapeClue and add the interpretation label
     - In `PRESETS.trazo.tapeClue`, change `kind` from `'unfinished'` to `'file'`.
     - Keep `id` (`trazo-sampler-fallback`), `title`, `path`, `lineNumber` (216), `excerpt`, `provenance`, and `dateLabel` unchanged.
     - Keep `observedFact` unchanged, per the resolved decisions.
@@ -65,21 +65,21 @@ Resolved decisions applied in these tasks:
     - _Expected_Behavior: kind is 'file', with path, line, and excerpt unchanged (design Property 1)_
     - _Requirements: 2.5_
 
-  - [ ] 3.4 Verify the bug condition exploration tests now pass
+  - [x] 3.4 Verify the bug condition exploration tests now pass
     - **Property 1: Expected Behavior** - Chip Order and Trazo Findings
     - **IMPORTANT**: Re-run the SAME tests from task 1. Do NOT write new tests.
     - Run `npm test`.
     - **EXPECTED OUTCOME**: All tests from task 1 PASS.
     - _Requirements: 2.1, 2.3, 2.4, 2.5_
 
-  - [ ] 3.5 Verify preservation tests still pass
+  - [x] 3.5 Verify preservation tests still pass
     - **Property 2: Preservation** - Non-Bug Presets, Dossier Order, and Export Behavior
     - **IMPORTANT**: Re-run the SAME assertions from task 2. Do NOT write new assertions.
     - Run `npm test`.
     - **EXPECTED OUTCOME**: All preservation and control assertions PASS, with no changed values for boundary, sentinel-lab, the modal order, or `PRESET_LIST`.
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8_
 
-  - [ ] 3.6 Update the existing trazo assertions in tests/story-ingest.test.ts
+  - [x] 3.6 Update the existing trazo assertions in tests/story-ingest.test.ts
     - Line 18: replace `assert.ok(d.todos.length >= 2)` with per-preset expectations. `boundary` and `sentinel-lab` must have at least 2 todos. `trazo` must have exactly 0.
     - Lines 22-24 (trazo block): keep the gallery and line 216 assertions. Replace the `tapeClue.lineNumber === 216` check only if it moved. Add `tapeClue.kind === 'file'`, `path === 'src/utils/companionPathSampler.ts'`, and the original excerpt.
     - For every preset, add `assert.ok(!d.todos.some((t) => t.tag === 'STUB'))`.
@@ -87,13 +87,13 @@ Resolved decisions applied in these tasks:
     - Do not modify other tests in the file.
     - _Requirements: 2.3, 2.4, 2.5, 2.6, 3.8_
 
-  - [ ] 3.7 Add the chip order regression test against gardenos.html
+  - [x] 3.7 Add the chip order regression test against gardenos.html
     - Add a source-text test (no import of `login.ts`) that extracts `PRESET_CHIPS` ids from `login.ts` and asserts the order `['boundary', 'trazo', 'sentinel-lab']`.
     - In the same test or an adjacent one, read `gardenos.html` with `readFileSync(new URL('../gardenos.html', import.meta.url), 'utf8')` and assert that the ids `btnLoadBoundary`, `btnLoadTrazo`, and `btnLoadSentinel` appear in that order. Then assert the two extracted lists match in meaning (boundary, trazo, sentinel).
     - Assert the labels `['BOUNDARY', 'Trazo', 'Sentinel Lab']` in the same order.
     - _Requirements: 2.1, 2.6, 3.4_
 
-- [ ] 4. Checkpoint: final gate
+- [x] 4. Checkpoint: final gate
   - Run `npm test`. All test files must pass.
   - Run `npx tsc --noEmit`. It must exit with no errors.
   - If either check fails, report the failing test or diagnostic. Do not claim success.

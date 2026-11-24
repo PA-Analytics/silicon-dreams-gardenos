@@ -8,8 +8,8 @@ export type Focus = 'name' | 'repo';
 
 export const ORIGINS: Origin[] = ['Demo', 'GitHub', 'Carpeta'];
 export const PRESET_CHIPS: Array<{ id: PresetId; label: string }> = [
-  { id: 'trazo', label: 'Trazo' },
   { id: 'boundary', label: 'BOUNDARY' },
+  { id: 'trazo', label: 'Trazo' },
   { id: 'sentinel-lab', label: 'Sentinel Lab' },
 ];
 export const PACE_CHIPS: Array<{ id: StoryPace; en: string; es: string }> = [
