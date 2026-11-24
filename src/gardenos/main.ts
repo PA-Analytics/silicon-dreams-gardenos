@@ -5,6 +5,7 @@ import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { bloom } from 'three/addons/tsl/display/BloomNode.js';
 import { createLoginUI } from './login.ts';
 import { createHologram } from './hologram.ts';
+import { focusSelectorFor, type DossierFocusTarget } from './focus-target.ts';
 import { loadReception, makeDust, WALK, type Reception } from './reception.ts';
 import { colorRamp, getSharedNoiseTexture, type TSLNode } from '../shaders/noise.ts';
 import { ISLAND_EYE, loadIsland, type Island } from './island.ts';
@@ -181,7 +182,7 @@ async function init(): Promise<void> {
     if (cur.has(todoId)) cur.delete(todoId); else cur.add(todoId);
     activeDossier.selectedTodoIds = [...cur];
     if (island) island.applyDossier(activeDossier, story);
-    renderEvidence(byId('dosGrid'), activeDossier, story, selectTodo, toggleTodoInKiro);
+    renderEvidence(byId('dosGrid'), activeDossier, story, selectTodo, toggleTodoInKiro, 'kiro');
   };
 
   const placePoi = () => {
@@ -1116,7 +1117,7 @@ function renderEvidence(
   story: StoryEngine,
   onSelectTodo: (idx: number) => void,
   onToggleKiro: (todoId: string) => void,
-  focusTrackIdx?: number,
+  focusTarget?: DossierFocusTarget,
 ) {
   const lang = getLang();
   const el = <K extends keyof HTMLElementTagNameMap>(tag: K, text: string, cls = '') => {
@@ -1148,6 +1149,7 @@ function renderEvidence(
     const picked = story.isTodoSelected(activeTodo.id);
     const kiroBtn = el('button', picked ? tr('✓ Included in Kiro Spec', '✓ Incluida en Kiro Spec', lang) : tr('+ Include in Kiro Spec', '+ Incluir en Kiro Spec', lang), 'dosTrackBtn');
     kiroBtn.type = 'button'; kiroBtn.setAttribute('aria-pressed', String(picked));
+    kiroBtn.setAttribute('data-kiro-toggle', '');
     kiroBtn.onclick = () => onToggleKiro(activeTodo.id);
     cardA.append(kiroBtn);
   }
@@ -1192,7 +1194,7 @@ function renderEvidence(
   if (story.creatorNote.trim()) cardB.append(el('p', `${tr('Saved note', 'Nota guardada', lang)}: ${story.creatorNote}`, 'dosHyp'));
 
   grid.replaceChildren(cardA, cardB);
-  if (focusTrackIdx !== undefined) {
-    grid.querySelector<HTMLButtonElement>(`.dosTrackBtn[data-track-idx="${focusTrackIdx}"]`)?.focus({ preventScroll: true });
+  if (focusTarget !== undefined) {
+    grid.querySelector<HTMLButtonElement>(focusSelectorFor(focusTarget))?.focus({ preventScroll: true });
   }
 }
