@@ -58,7 +58,7 @@ npm run build
 
 - **Steering (`.kiro/steering/silicon-dreams-v12.md`):** Enforces epistemic separation (Observed vs. Unconfirmed Hypothesis vs. Creator Note), fixed Three.js day/night light rigs, non-blocking Direct Dossier access, honest `localStorage` failure handling, and no-Base64 media rules.
 - **Spec-Driven Development (`.kiro/specs/revival-dossier/`):** Full `requirements.md` (EARS), `design.md`, and `tasks.md` governing read-only ingestion, persistence invariants, and Kiro Revival Pack generation.
-- **Agent Hooks (`.kiro/hooks/gardenos-regression.json`):** Official Kiro `v1` schema hooks (`PostTaskExecution` and `PostFileSave`) running `npm test`.
+- **Agent Hooks (`.kiro/hooks/gardenos-regression.json`):** Official Kiro `v1` schema hooks (`PostTaskExec` and `PostFileSave`) running `npm test`.
 - **Custom Agent (`.kiro/agents/revival-auditor.json`):** Read-only reviewer verifying epistemic honesty and Stage One constraints.
 - **In-Product Kiro Output:** Every restored project exports a ready-to-use `.kiro/specs/revive-<slug>/` Revival Pack (`requirements.md` EARS per discovered `TODO`, `design.md`, `tasks.md`, and a disabled `v1` Kiro hook).
 

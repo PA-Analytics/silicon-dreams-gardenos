@@ -4,7 +4,7 @@
     {
       "name": "GardenOS Regression Suite",
       "description": "Runs unit & integration tests after any spec task finishes.",
-      "trigger": "PostTaskExecution",
+      "trigger": "PostTaskExec",
       "action": {
         "type": "command",
         "command": "npm test"
@@ -14,7 +14,7 @@
       "name": "GardenOS Typecheck on Save",
       "description": "Typechecks the workspace whenever a GardenOS TypeScript source file is saved.",
       "trigger": "PostFileSave",
-      "matcher": "src/gardenos/.*\\.ts$",
+      "matcher": "src[\\\\/]gardenos[\\\\/].*\\.ts$",
       "action": {
         "type": "command",
         "command": "npx tsc --noEmit"

@@ -142,7 +142,8 @@ test('Kiro export & triage: selectedTodoIds filters requirements.md, design.md, 
   assert.ok(!text.includes('Source: Carpeta'));
   const hook = JSON.parse(formatKiroHookJson(d));
   assert.equal(hook.version, 'v1');
-  assert.equal(hook.hooks[0].trigger, 'PostTaskExecution');
+  assert.equal(hook.hooks[0].trigger, 'PostTaskExec');
+  assert.ok(!formatKiroHookJson(d).includes('PostTaskExecution'));
   assert.equal(hook.hooks[0].enabled, false);
   assert.match(formatKiroDesignMd(d), /Hub module/);
   assert.match(formatKiroTasksMd(d, 'Note'), /src\/main\.py:280/);
@@ -151,6 +152,18 @@ test('Kiro export & triage: selectedTodoIds filters requirements.md, design.md, 
   const repoHook = JSON.parse(readFileSync(new URL('../.kiro/hooks/gardenos-regression.json', import.meta.url), 'utf8'));
   assert.equal(repoHook.version, 'v1');
   assert.equal(repoHook.hooks.length, 2);
+  assert.equal(repoHook.hooks[0].trigger, 'PostTaskExec');
+  const canonicalV1Triggers = [
+    'PreToolUse', 'PermissionRequest', 'PostToolUse', 'SessionStart', 'Stop', 'SubagentStop', 'UserPromptSubmit',
+    'PreTaskExec', 'PostTaskExec', 'PreCompact', 'PostCompact', 'PostFileCreate', 'PostFileSave', 'PostFileDelete',
+  ];
+  for (const repoHookEntry of repoHook.hooks) assert.ok(canonicalV1Triggers.includes(repoHookEntry.trigger), `non-canonical trigger: ${repoHookEntry.trigger}`);
+  const saveMatcher = new RegExp(repoHook.hooks[1].matcher);
+  assert.equal(repoHook.hooks[1].trigger, 'PostFileSave');
+  assert.ok(saveMatcher.test('c:\\disco\\silicon-dreams-v12\\src\\gardenos\\presets.ts'), 'backslash path must match');
+  assert.ok(saveMatcher.test('src/gardenos/presets.ts'), 'forward-slash path must match');
+  assert.ok(!saveMatcher.test('c:\\disco\\silicon-dreams-v12\\src\\explore.ts'), 'non-gardenos path must not match');
+  assert.ok(!saveMatcher.test('src\\shaders\\noise.ts'), 'non-gardenos path must not match');
   assert.match(repoHook.hooks[1].action.command, /tsc --noEmit/);
 });
 
