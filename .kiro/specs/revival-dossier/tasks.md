@@ -21,4 +21,7 @@ Status legend: `[x]` = implemented & verified locally; `[ ]` = pending execution
 ## 4. Kiro Artifacts & Verification
 - [x] 4.1 Upgrade `.kiro/hooks/gardenos-regression.json` to official Kiro `v1` schema (`version: "v1"`, `hooks[]`, `trigger`, `action`) and emit `v1` hooks in `kiro-export.ts`.
 - [x] 4.2 Export full multi-section Kiro Revival Pack (`requirements.md` EARS per TODO + `design.md` + `tasks.md` + `v1` hook).
-- [ ] 4.3 Run `PostTaskExecution` / `PostFileSave` hooks and PBT property check inside Kiro IDE/CLI and record session evidence without private data.
+- [x] 4.3 Run `PostTaskExecution` / `PostFileSave` hooks and PBT property check inside Kiro IDE/CLI and record session evidence without private data.
+  - Done in Kiro CLI V3 on 2026-11-24 (trigger corrected to canonical `PostTaskExec` in commit `5fb99ad` after Kiro's own logs showed `PostTaskExecution` is not a recognized trigger).
+  - Evidence: `PostFileSave` typecheck hook completed 8x in the dossier-focus session and 16x in the github-token session; `PostTaskExec` regression suite completed 7x in the github-token session (hook_update events in session transcripts).
+  - PBT: fast-check suite `tests/pbt-invariants.test.ts` authored in the `pbt-persistence-invariants` spec session; Property 2 failed first (seed `-1770722359`, shrunk counterexample) exposing a re-throwing catch block in `saveProjectMemory`; fixed and regression-pinned. 115/115 tests green.
