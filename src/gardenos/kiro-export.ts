@@ -240,12 +240,19 @@ export function loadProjectMemory(projectId: string, storage?: Pick<MemoryStore,
     return isMemory(value) ? value : null;
   } catch { return null; }
 }
+// Never throws: String() is used instead of template literals so Symbol or throwing name/message fields cannot escape the catch block.
+function describeStorageError(error: unknown): string {
+  try {
+    if (error instanceof Error) return `${String(error.name)}: ${String(error.message)}`;
+  } catch { /* fall through to the generic message */ }
+  return 'Storage unavailable.';
+}
 export function saveProjectMemory(projectId: string, data: SavedProjectMemory, storage?: Pick<MemoryStore, 'setItem'>): { ok: boolean; error?: string } {
   try {
     if (!isMemory(data)) return { ok: false, error: 'Invalid project memory record.' };
     (storage ?? globalThis.localStorage).setItem(memoryKey(projectId), JSON.stringify(data));
     return { ok: true };
   } catch (error) {
-    return { ok: false, error: error instanceof Error ? `${error.name}: ${error.message}` : 'Storage unavailable.' };
+    return { ok: false, error: describeStorageError(error) };
   }
 }
