@@ -4,7 +4,7 @@ Silicon Dreams is a browser experience, but every line of its delivery pipeline 
 
 ## Surfaces used
 
-**Kiro CLI V3** was the primary surface: twelve metered development sessions covering spec-driven bugfixes, a full feature spec→implementation cycle, property-based testing, a custom-agent audit, and validation of the product's own exported artifacts. Every session was recorded in stream-json; credit consumption was tracked per session (total: ~53 credits across fourteen sessions).
+**Kiro CLI V3** was the primary surface: fourteen metered development sessions covering spec-driven bugfixes, a full feature spec→implementation cycle, property-based testing, a custom-agent audit, and validation of the product's own exported artifacts. Every session was recorded in stream-json; credit consumption was tracked per session (total: ~53 credits across fourteen sessions).
 
 **Steering** (`.kiro/steering/silicon-dreams-v12.md`) — epistemic honesty rules (strict separation of *Observed* / *Hypothesis (unconfirmed)* / *Creator Note*), a fixed lighting rig, and persistence honesty. Kiro injected the steering file automatically at every session start, and we watched it self-correct outputs to comply — e.g. adding the required `Hypothesis (unconfirmed)` prefix to interpretation clues without being asked twice.
 
