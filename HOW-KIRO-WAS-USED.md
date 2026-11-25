@@ -4,7 +4,7 @@ Silicon Dreams is a browser experience, but every line of its delivery pipeline 
 
 ## Surfaces used
 
-**Kiro CLI V3** was the primary surface: twelve metered development sessions covering spec-driven bugfixes, a full feature spec→implementation cycle, property-based testing, a custom-agent audit, and validation of the product's own exported artifacts. Every session was recorded in stream-json; credit consumption was tracked per session (total: ~17 credits).
+**Kiro CLI V3** was the primary surface: twelve metered development sessions covering spec-driven bugfixes, a full feature spec→implementation cycle, property-based testing, a custom-agent audit, and validation of the product's own exported artifacts. Every session was recorded in stream-json; credit consumption was tracked per session (total: ~53 credits across fourteen sessions).
 
 **Steering** (`.kiro/steering/silicon-dreams-v12.md`) — epistemic honesty rules (strict separation of *Observed* / *Hypothesis (unconfirmed)* / *Creator Note*), a fixed lighting rig, and persistence honesty. Kiro injected the steering file automatically at every session start, and we watched it self-correct outputs to comply — e.g. adding the required `Hypothesis (unconfirmed)` prefix to interpretation clues without being asked twice.
 
@@ -41,6 +41,13 @@ The revival-auditor's top finding was a **blocker**: exported Revival Packs coul
 
 Silicon Dreams exports "Kiro Revival Packs" — spec kits for your abandoned projects. We didn't just ship that export: we loaded an exported pack into a real Kiro session and confirmed the hooks register without warnings and the spec files are discovered. The formatting issues that session surfaced were fed back into the product backlog — and fixed in the export-honesty cycle above.
 
+
+## The frontier review panel — the loop that closed the hardest
+
+As a final validation pass, two independent Kiro sessions with frontier models ran a hostile security review of the export pipeline: instructions were explicit — "a PASS must mean you actually tried to break it." Both reviewers independently failed the redaction claim and found real bypasses the property tests had missed — bare `PASS` keys, passwords inside connection strings, `Authorization` header forms, quoted values with spaces, and space-separated CLI flags — plus a shell-injection vector in the exported hook (`cd <dir>` with unfiltered metacharacters). One reviewer also reported a markdown-fence injection that the other had explicitly ruled out; local verification proved the defense held, a useful reminder that even frontier reviewers need adversarial verification.
+
+The panel also surfaced a subtler lesson: the property-test generators had been mirroring the implementation — producing exactly the input shapes the regex already caught, which is why every bypass passed the suite. A Kiro session with claude-opus-5.5 then implemented the hardening: all five confirmed bypasses closed, exported hooks shell-inert by construction at two layers, and the generators widened to the hostile input classes so the properties can genuinely catch regressions. 118/118 tests green.
+
 ## Credit discipline
 
-All sessions used claude-haiku-5.5 with tight, pre-answered prompts to avoid clarification overhead. Total development spend: ~17 credits, metered per session via stream-json usage events.
+All sessions used claude-haiku-5.5 with tight, pre-answered prompts to avoid clarification overhead. Total development spend: ~53 credits across fourteen sessions, metered per session via stream-json usage events.
