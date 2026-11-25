@@ -2,7 +2,7 @@ import { PRESETS } from './presets.ts';
 import type { PresetId, RepoArchetype, PresetCommit } from './presets.ts';
 import { buildRepoGraph, extractLocalImports } from './repo-graph.ts';
 import type { RepoGraph } from './repo-graph.ts';
-import { formatKiroRevivalSpec, formatArchiveCard } from './kiro-export.ts';
+import { formatKiroRevivalSpec, formatArchiveCard, isSafeRelativeDir } from './kiro-export.ts';
 
 export type { PresetId, RepoArchetype } from './presets.ts';
 export type Origin = 'Demo' | 'GitHub' | 'Carpeta';
@@ -585,6 +585,7 @@ export function detectArchetype(paths: string[], pkgText = ''): Pick<ReentryPlan
   return { archetype, archetypeLabel };
 }
 
+// Manifests in a directory that is not a safe relative path yield no commands; see isSafeRelativeDir.
 export function detectReentryPlan(paths: string[], contents: ReadonlyMap<string, string> = new Map()): ReentryPlan {
   const run = new Set<string>();
   const hints = new Set<string>();
@@ -601,6 +602,10 @@ export function detectReentryPlan(paths: string[], contents: ReadonlyMap<string,
     const leaf = mPath.slice(mPath.lastIndexOf('/') + 1);
     const dir = mPath.includes('/') ? mPath.slice(0, mPath.lastIndexOf('/')) : '';
     const prefix = dir ? `cd ${dir} && ` : '';
+    if (dir && !isSafeRelativeDir(dir) && leaf !== '.env.example') {
+      if (leaf === 'package.json') allPkgText += '\n' + text;
+      continue;
+    }
 
     if (leaf === 'package.json') {
       allPkgText += '\n' + text;

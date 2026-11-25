@@ -3,22 +3,94 @@ import type { Lang } from './i18n.ts';
 
 // Redacted values are held as a private-use marker until the final render. Escaping never touches the marker.
 const REDACTED = '\uE000';
-const SENSITIVE_KEY = /token|secret|passw|pwd|apikey|api[_-]?key|credential|private[_-]?key|access[_-]?key|auth(?!or)/i;
+// Bare PASS/PWD keys (DB_PASS, MYSQL_PWD, --pass) count, but words that merely contain "pass" (bypass, passport, compass) do not.
+// "Authorization" is excluded here because its value is "<scheme> <credential>" and is handled by AUTH_HEADER.
+const SENSITIVE_KEY = /token|secret|passw|passphrase|(?:^|[^a-z])pass(?:$|[^a-z])|pwd|apikey|api[_-]?key|credential|private[_-]?key|access[_-]?key|auth(?!or)/i;
 const HYPOTHESIS = 'Hypothesis (unconfirmed)';
+
+// A value is consumed whole: a quoted string up to its closing quote (or the end of the line when unterminated),
+// or an unquoted run up to whitespace. Punctuation such as commas or dashes inside the value is part of the value.
+// An unquoted run may continue into quoted runs, as a shell word does (KEY=pre"fix with spaces").
+const QUOTED = String.raw`"(?:[^"\\\r\n]|\\.)*"?|'(?:[^'\\\r\n]|\\.)*'?|\x60[^\x60\r\n]*\x60?`;
+const VALUE = String.raw`${QUOTED}|[^\s"'\x60](?:[^\s"'\x60]|${QUOTED})*`;
+const VALUE_AT = new RegExp(VALUE, 'y');
+const ASSIGNMENT = /\b([A-Za-z_][\w.-]*)(["']?\s*[=:]\s*)/g;
+const CHAINED_SEP = /["']?[ \t]*[=:][ \t]*/y;
+const TRAILING_GAP = /[ \t]+/y;
+const AUTH_HEADER = new RegExp(String.raw`\b((?:proxy-)?authorization)(["']?\s*[:=]\s*)("(?:[^"\\\r\n]|\\.)*"?|'(?:[^'\\\r\n]|\\.)*'?|([^\s"'\x60]+)(?:([ \t]+)([^\s"'\x60]+))?)`, 'gi');
+const AUTH_SCHEME = /^(?:bearer|basic|token|digest|negotiate|ntlm|apikey|api-key|key|hmac|oauth|aws4-hmac-sha256)$/i;
+const CLI_FLAG = new RegExp(String.raw`(?<![\w-])(--?[A-Za-z][\w-]*)([ \t]+)(?!-)(${VALUE})`, 'g');
+// scheme://user:PASSWORD@host. The password runs to the last "@" of the authority, so a raw "@" in it is still covered.
+const URL_PASSWORD = /\b([a-z][a-z0-9+.-]*:\/\/[^\s:@/?#]*:)[^\s/?#]+@/gi;
+
+// Keeps the quotes of a quoted value and replaces what they enclose.
+function maskValue(value: string): string {
+  const q = value[0];
+  if (q !== '"' && q !== "'" && q !== '`') return REDACTED;
+  return q + REDACTED + (value.length > 1 && value.endsWith(q) ? q : '');
+}
+
+// Redacts the value of every key=value or key: value pair whose key is sensitive. A non-sensitive pair only
+// consumes its key and separator, so a sensitive pair nested in its value (key = "password=...") is still scanned.
+function maskAssignments(text: string): string {
+  let out = '';
+  let last = 0;
+  ASSIGNMENT.lastIndex = 0;
+  for (let m = ASSIGNMENT.exec(text); m; m = ASSIGNMENT.exec(text)) {
+    if (!SENSITIVE_KEY.test(m[1])) continue;
+    const start = m.index + m[0].length;
+    VALUE_AT.lastIndex = start;
+    const value = VALUE_AT.exec(text)?.[0];
+    if (!value) continue;
+    out += text.slice(last, start) + maskValue(value);
+    last = start + value.length;
+    // A redacted value that is itself followed by a separator (KEY=DB_PASS = x, KEY=DB_PASS: x) was a hidden key, so its value is redacted too.
+    for (let prev = value; ;) {
+      const sepRe = /[=:]$/.test(prev) ? TRAILING_GAP : CHAINED_SEP;
+      sepRe.lastIndex = last;
+      const sep = sepRe.exec(text)?.[0];
+      if (!sep) break;
+      VALUE_AT.lastIndex = last + sep.length;
+      const next = VALUE_AT.exec(text)?.[0];
+      if (!next) break;
+      out += sep + maskValue(next);
+      last += sep.length + next.length;
+      prev = next;
+    }
+    ASSIGNMENT.lastIndex = last;
+  }
+  return out + text.slice(last);
+}
 
 // Replaces secret-like values with the marker and keeps any key name visible.
 function markSecrets(text: string): string {
   let out = text.replace(/[\uE000\uE001]/g, '');
-  out = out.replace(/\b([A-Za-z_][\w.-]*)(["']?\s*[=:]\s*)(["']?)([^\s"'`,;&]+)\3/g,
-    (match, key: string, sep: string, quote: string) => (SENSITIVE_KEY.test(key) ? `${key}${sep}${quote}${REDACTED}${quote}` : match));
+  out = out.replace(AUTH_HEADER, (_m, header: string, sep: string, value: string, first?: string, gap?: string, second?: string) => {
+    if (!first) return header + sep + maskValue(value);
+    if (second === undefined) return header + sep + REDACTED;
+    if (AUTH_SCHEME.test(first)) return header + sep + first + gap + REDACTED;
+    // Unknown scheme: a word-only first token may be a custom scheme, so both tokens are hidden. Otherwise the first token is the credential.
+    return header + sep + REDACTED + gap + (/^[A-Za-z]+$/.test(first) ? REDACTED : second);
+  });
+  out = out.replace(URL_PASSWORD, (_m, head: string) => `${head}${REDACTED}@`);
+  out = out.replace(CLI_FLAG, (match, flag: string, gap: string, value: string) => (SENSITIVE_KEY.test(flag) ? flag + gap + maskValue(value) : match));
+  out = maskAssignments(out);
   out = out.replace(/\b(?:gh[pousr]_|github_pat_|sk-|xox[abprs]-|AKIA|AIza)[A-Za-z0-9_-]{12,}/g, REDACTED);
   out = out.replace(/\b(Bearer\s+)[A-Za-z0-9._~+/=-]{8,}/gi, (_m, keyword: string) => keyword + REDACTED);
   return out.replace(/[A-Za-z0-9_+=]{16,}/g, (token) => (isSecretLike(token) ? REDACTED : token));
 }
 // A long token with letters and digits is treated as a credential. Identifiers such as exp_0001_baseline_v2 are names and stay visible.
+// The identifier exemption does not apply when a credential word sits next to a numeric body of 4+ characters
+// (stripe_live_secret_key_123abc), since that shape is a key value, not a name. Version suffixes such as _v2 stay exempt.
+const CREDENTIAL_WORD = /secret|passw|apikey|api_key|private_key|access_key|(?:^|_)live(?:_|$)/i;
 function isSecretLike(token: string): boolean {
   if (!/[A-Za-z]/.test(token) || !/\d/.test(token)) return false;
-  if (token.includes('_') && token.split('_').filter(Boolean).every((segment) => /^(?:[A-Za-z]+|\d+[a-z]*|v\d+)$/.test(segment))) return false;
+  if (token.includes('_')) {
+    const segments = token.split('_').filter(Boolean);
+    const wordlike = segments.every((segment) => /^(?:[A-Za-z]+|\d+[a-z]*|v\d+)$/.test(segment));
+    const numericBody = segments.some((segment) => /^\d/.test(segment) && segment.length >= 4);
+    if (wordlike && !(numericBody && CREDENTIAL_WORD.test(token))) return false;
+  }
   return true;
 }
 const renderRedacted = (text: string) => text.replace(/\uE000/g, '<redacted>');
@@ -106,11 +178,25 @@ function observations(d: ProjectDossier): string[] {
   ];
 }
 
+// Manifest directories come from the scanned repository tree and are interpolated into `cd <dir> && ...` commands, one of which
+// is exported as an executable Kiro hook. Only plain relative paths are accepted: segments of letters, digits, dot, dash and
+// underscore, no leading dash (flag injection), no `..` (escaping the repo). Anything else (spaces, ;, &, |, backticks, $(), quotes)
+// could inject shell commands, so callers must emit no command for such a directory (fail-closed).
+export const isSafeRelativeDir = (dir: string): boolean =>
+  /^[A-Za-z0-9._][A-Za-z0-9._-]*(?:\/[A-Za-z0-9._][A-Za-z0-9._-]*)*$/.test(dir) && !dir.split('/').includes('..');
+// Defense in depth for the executable hook: the command may come from a dossier built outside detectReentryPlan.
+// Only an optional "cd <safe relative dir> && " prefix may use shell operators; the rest must hold no metacharacters.
+function isInertCommand(command: string): boolean {
+  const prefix = /^cd (\S+) && /.exec(command);
+  if (prefix && !isSafeRelativeDir(prefix[1])) return false;
+  return !/[;&|`$<>(){}\[\]*?!~#'"\\\r\n]/.test(prefix ? command.slice(prefix[0].length) : command);
+}
+
 export function formatKiroHookJson(dossier: ProjectDossier): string {
   const name = redactSecrets(dossier.projectName);
   const test = dossier.reentry.testCommand;
-  // A test command that redaction would alter is not emitted as an executable hook action.
-  const command = test && redactSecrets(test) === test ? test : null;
+  // A test command that redaction would alter, or that is not shell-inert, is not emitted as an executable hook action.
+  const command = test && redactSecrets(test) === test && isInertCommand(test) ? test : null;
   const hook = {
     version: 'v1',
     hooks: [
