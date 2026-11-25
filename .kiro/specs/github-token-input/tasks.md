@@ -14,14 +14,14 @@ Seven ordered tasks (0 through 6) implement the optional GitHub token field desc
 
 ## Tasks
 
-- [ ] 0. Record the baseline before any edit
+- [x] 0. Record the baseline before any edit
   - Run `npm test` and `npx tsc --noEmit` from the repository root before touching any file.
   - Record the number of passing and failing tests and any TypeScript errors in the task result.
   - If a failure already exists, list it and leave it unchanged. Do not fix unrelated failures.
   - Gate: both commands run. This task edits no file, so the gate is the recorded output.
   - _Requirements: 7.4_
 
-- [ ] 1. Add pure failure-message helpers to ingest.ts and create the test file
+- [x] 1. Add pure failure-message helpers to ingest.ts and create the test file
   - File: `src/gardenos/ingest.ts`. Add these exports after `parseGitHubOwnerRepo` (around line 289), before `ingestGitHubRepo`:
     - `export interface BilingualText { en: string; es: string; }`
     - `export class GitHubHttpError extends Error` with a constructor `(readonly status: number, readonly endpoint: string, readonly rateLimitRemaining: string | null)` that calls `super(\`GitHub HTTP ${status} on ${endpoint}.\`)` and sets `this.name = 'GitHubHttpError'`.
@@ -39,7 +39,7 @@ Seven ordered tasks (0 through 6) implement the optional GitHub token field desc
   - Gate: `npm test` and `npx tsc --noEmit` both exit 0.
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 4.3, 7.1, 7.3_
 
-- [ ] 2. Wire the helpers into ingestGitHubRepo and cover the token rules with stubbed fetch
+- [x] 2. Wire the helpers into ingestGitHubRepo and cover the token rules with stubbed fetch
   - File: `src/gardenos/ingest.ts`, function `ingestGitHubRepo` (around line 311).
     - In the inner `request<T>(endpoint)` function (around lines 337-345), replace the `throw new Error(...)` for `!res.ok` with `throw new GitHubHttpError(res.status, \`/repos/${full}${endpoint}\`, res.headers.get('x-ratelimit-remaining'))`. Keep the message the same as before, because the class builds it.
     - Declare `let rateLimited = false;` and `const partialWarningsEs: string[] = [];` next to the existing `partialWarnings` declaration.
@@ -60,7 +60,7 @@ Seven ordered tasks (0 through 6) implement the optional GitHub token field desc
   - Gate: `npm test` and `npx tsc --noEmit` both exit 0.
   - _Requirements: 2.2, 2.3, 2.6, 2.7, 2.8, 3.1, 3.4, 3.5, 3.7, 7.2, 7.3_
 
-- [ ] 3. Add a Spanish reason parameter to the fallback dossier helpers
+- [x] 3. Add a Spanish reason parameter to the fallback dossier helpers
   - File: `src/gardenos/ingest.ts`.
     - `createExampleDossier(visitorName: string, fallbackReason?: string, fallbackReasonEs?: string)` passes both values to `createPresetDossier`.
     - `createPresetDossier(presetId, visitorName, fallbackReason?, fallbackReasonEs?)` (around line 575). Keep `partialWarnings` and `fallbackReason` unchanged. In the `honestyNoteEs` expression (around line 604), use `[fallbackReasonEs ?? fallbackReason, honestyNoteEs ?? data.honestyNote]`, filtered for empty values.
@@ -72,7 +72,7 @@ Seven ordered tasks (0 through 6) implement the optional GitHub token field desc
   - Gate: `npm test` and `npx tsc --noEmit` both exit 0.
   - _Requirements: 4.3, 3.7_
 
-- [ ] 4. Add the token input, clear control, and hint to the Dossier_Modal markup
+- [x] 4. Add the token input, clear control, and hint to the Dossier_Modal markup
   - File: `gardenos.html`.
     - Inside `<div class="dosQuickSwitch">` (around line 197), immediately after the `#quickRepoInput` line and before `#btnLoadRepo`, insert:
       ```html
@@ -90,7 +90,7 @@ Seven ordered tasks (0 through 6) implement the optional GitHub token field desc
   - Gate: `npm test` and `npx tsc --noEmit` both exit 0.
   - _Requirements: 1.1, 1.2, 1.3, 1.7, 3.8, 5.1_
 
-- [ ] 5. Wire the Load_Handler, Enter key, clear control, and language labels in main.ts
+- [x] 5. Wire the Load_Handler, Enter key, clear control, and language labels in main.ts
   - File: `src/gardenos/main.ts`.
     - Replace the `loadRepoIntoDossier` definition (around lines 268-274) with:
       ```ts
@@ -128,7 +128,7 @@ Seven ordered tasks (0 through 6) implement the optional GitHub token field desc
   - Gate: `npm test` and `npx tsc --noEmit` both exit 0.
   - _Requirements: 1.4, 1.5, 1.6, 1.7, 2.1, 2.4, 2.5, 4.1, 4.2, 6.1, 6.2, 7.1_
 
-- [ ] 6. Final verification and manual checklist
+- [x] 6. Final verification and manual checklist
   - Run `npm test` and `npx tsc --noEmit` from the repository root. Both must exit 0. Record the number of tests in `tests/github-token-input.test.ts` that ran and passed.
   - Confirm the baseline recorded in task 0 did not get worse. Any new failure must be fixed in this task.
   - Manual checks. A person runs `npm run dev` in a separate terminal and opens the dossier. These cannot be automated without a DOM:

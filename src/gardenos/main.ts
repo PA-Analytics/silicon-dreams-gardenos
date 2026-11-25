@@ -125,6 +125,14 @@ async function init(): Promise<void> {
     byId('dosOverline').textContent = tr('Archive of Unfinished Things · Recovery Dossier', 'Archivo de lo inconcluso · Ficha de recuperación', lang);
     byId('btnCloseDossier').textContent = tr('Close [Esc]', 'Cerrar [Esc]', lang);
     byId('btnLoadRepo').textContent = tr('Load GitHub', 'Cargar GitHub', lang);
+    (byId('quickTokenInput') as HTMLInputElement).placeholder = tr('GitHub token (optional)', 'Token de GitHub (opcional)', lang);
+    byId('quickTokenInput').setAttribute('aria-label', tr('Optional GitHub personal access token', 'Token personal de GitHub opcional', lang));
+    byId('quickTokenHint').textContent = tr(
+      'Optional token. Stays in memory only: never saved to browser storage, the Kiro Revival Pack, or any download. Raises GitHub\'s limit from 60 to 5,000 requests per hour.',
+      'Token opcional. Se guarda solo en memoria: nunca en el almacenamiento del navegador, en el Kiro Revival Pack ni en ninguna descarga. Eleva el límite de GitHub de 60 a 5.000 peticiones por hora.',
+      lang,
+    );
+    byId('btnClearToken').textContent = tr('Clear token', 'Borrar token', lang);
     byId('btnLoadFolder').textContent = tr('Folder', 'Carpeta', lang);
     byId('btnCopyKiroTop').textContent = tr('Copy Kiro Spec', 'Copiar Kiro Spec', lang);
     byId('sec01').textContent = tr('01 · Observed Evidence & Hypothesis', '01 · Evidencia observada e hipótesis', lang);
@@ -265,11 +273,16 @@ async function init(): Promise<void> {
     targetFocus.focus({ preventScroll: true });
   };
 
-  const loadRepoIntoDossier = async (repoStr: string) => {
+  const loadRepoIntoDossier = async (repoStr: string, token = '') => {
     const q = repoStr.trim();
     if (!q) return;
-    byId('dosHonest').textContent = tr(`Fetching public repository ${q}…`, `Consultando repositorio público ${q}…`, getLang());
-    const d = await ingestGitHubRepo(q, loginUI.name || 'Visitor');
+    const t = token.trim();
+    byId('dosHonest').textContent = tr(
+      t ? `Fetching ${q} with a token held in memory only…` : `Fetching ${q}…`,
+      t ? `Consultando ${q} con un token solo en memoria…` : `Consultando ${q}…`,
+      getLang(),
+    );
+    const d = await ingestGitHubRepo(q, loginUI.name || 'Visitor', undefined, t || undefined);
     loginUI.setOrigin('GitHub'); loginUI.setRepo(q);
     await openDossier(true, d);
   };
@@ -283,8 +296,10 @@ async function init(): Promise<void> {
   byId('btnQuickDossier').onclick = () => void openDossier(true);
   byId('btnDossier').onclick = () => void openDossier(true);
   byId('btnCloseDossier').onclick = closeDossier;
-  byId('btnLoadRepo').onclick = () => void loadRepoIntoDossier((byId('quickRepoInput') as HTMLInputElement).value);
-  byId('quickRepoInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); void loadRepoIntoDossier((byId('quickRepoInput') as HTMLInputElement).value); } });
+  byId('btnLoadRepo').onclick = () => void loadRepoIntoDossier((byId('quickRepoInput') as HTMLInputElement).value, (byId('quickTokenInput') as HTMLInputElement).value);
+  byId('quickRepoInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); void loadRepoIntoDossier((byId('quickRepoInput') as HTMLInputElement).value, (byId('quickTokenInput') as HTMLInputElement).value); } });
+  byId('quickTokenInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); void loadRepoIntoDossier((byId('quickRepoInput') as HTMLInputElement).value, (byId('quickTokenInput') as HTMLInputElement).value); } });
+  byId('btnClearToken').onclick = () => { (byId('quickTokenInput') as HTMLInputElement).value = ''; };
   byId('btnLoadTrazo').onclick = () => void loadPresetIntoDossier('trazo');
   byId('btnLoadBoundary').onclick = () => void loadPresetIntoDossier('boundary');
   byId('btnLoadSentinel').onclick = () => void loadPresetIntoDossier('sentinel-lab');

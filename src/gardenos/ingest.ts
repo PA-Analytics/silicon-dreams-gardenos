@@ -193,8 +193,8 @@ function summarizeCounts(c: CategoryCounts): string {
   return parts.join(', ') || 'no recognized types';
 }
 
-export function createExampleDossier(visitorName: string, fallbackReason?: string): ProjectDossier {
-  return createPresetDossier('sentinel-lab', visitorName, fallbackReason);
+export function createExampleDossier(visitorName: string, fallbackReason?: string, fallbackReasonEs?: string): ProjectDossier {
+  return createPresetDossier('sentinel-lab', visitorName, fallbackReason, fallbackReasonEs);
 }
 
 export interface LocalFileLike {
@@ -291,6 +291,79 @@ export function parseGitHubOwnerRepo(input: string): { owner: string; repo: stri
   return m && m[2] !== '.' && m[2] !== '..' ? { owner: m[1], repo: m[2] } : null;
 }
 
+export interface BilingualText { en: string; es: string; }
+
+export class GitHubHttpError extends Error {
+  readonly status: number;
+  readonly endpoint: string;
+  readonly rateLimitRemaining: string | null;
+
+  constructor(status: number, endpoint: string, rateLimitRemaining: string | null) {
+    super(`GitHub HTTP ${status} on ${endpoint}.`);
+    this.name = 'GitHubHttpError';
+    this.status = status;
+    this.endpoint = endpoint;
+    this.rateLimitRemaining = rateLimitRemaining;
+  }
+}
+
+export function describeGitHubFailure(input: {
+  status: number;
+  rateLimitRemaining: string | null;
+  tokenSupplied: boolean;
+}): BilingualText {
+  const { status, rateLimitRemaining, tokenSupplied } = input;
+  if (status === 403 || status === 429) {
+    if (!tokenSupplied && rateLimitRemaining === '0') {
+      return {
+        en: 'Request limit reached. Unauthenticated GitHub API requests are limited to 60 per hour per IP address. A personal access token raises that limit to 5,000 per hour.',
+        es: 'Límite de peticiones alcanzado. Las peticiones sin autenticar a la API de GitHub están limitadas a 60 por hora por dirección IP. Un token de acceso personal eleva ese límite a 5.000 por hora.',
+      };
+    }
+    if (!tokenSupplied) {
+      return {
+        en: 'Refused (HTTP status). This may be the rate limit or a permission refusal, not confirmed. Unauthenticated GitHub API requests are limited to 60 per hour per IP address. A personal access token raises that limit to 5,000 per hour.',
+        es: 'Rechazado (estado HTTP). Puede ser el límite de peticiones o una restricción de permisos, no confirmado. Las peticiones sin autenticar están limitadas a 60 por hora por dirección IP. Un token de acceso personal eleva ese límite a 5.000 por hora.',
+      };
+    }
+    if (rateLimitRemaining === '0') {
+      return {
+        en: "The token's limit of 5,000 requests per hour was reached. Wait for the reset, then load again.",
+        es: 'Se alcanzó el límite de 5.000 peticiones por hora del token. Espera el restablecimiento y vuelve a cargar.',
+      };
+    }
+    return {
+      en: 'GitHub refused this token (HTTP status). It may lack access to this repository, or it may be rate-limited.',
+      es: 'GitHub rechazó este token (estado HTTP). Puede que no tenga acceso a este repositorio, o que esté limitado por frecuencia.',
+    };
+  }
+  if (status === 401 && tokenSupplied) {
+    return {
+      en: 'GitHub rejected the token (HTTP 401). Check the token, or clear it and load without one.',
+      es: 'GitHub rechazó el token (HTTP 401). Revisa el token, o bórralo y carga sin uno.',
+    };
+  }
+  if (status === 404) {
+    if (!tokenSupplied) {
+      return {
+        en: 'Not found, or private. A private repository requires a token with access.',
+        es: 'No encontrado, o privado. Un repositorio privado requiere un token con acceso.',
+      };
+    }
+    return {
+      en: 'Not found, or the token lacks access to this repository.',
+      es: 'No encontrado, o el token no tiene acceso a este repositorio.',
+    };
+  }
+  return { en: `GitHub HTTP ${status}.`, es: `GitHub HTTP ${status}.` };
+}
+
+export function redactToken(text: string, token: string | undefined): string {
+  const secret = (token ?? '').trim();
+  if (!secret) return text;
+  return text.split(secret).join('[token hidden]');
+}
+
 function rankGitHubManifests(allPaths: string[]): string[] {
   return allPaths.filter((p) => isManifestPath(p)).sort((a, b) => a.split('/').length - b.split('/').length || a.localeCompare(b)).slice(0, 4);
 }
@@ -337,11 +410,21 @@ export async function ingestGitHubRepo(
   async function request<T>(endpoint: string): Promise<T> {
     const res = await fetchImpl(`https://api.github.com/repos/${full}${endpoint}`, { headers, signal: ctrl.signal });
     if (!res.ok) {
-      const detail = res.status === 403 ? ' (rate-limited or forbidden)' : res.status === 404 ? ' (private or not found)' : '';
-      throw new Error(`GitHub HTTP ${res.status} on ${full}${endpoint}${detail}.`);
+      throw new GitHubHttpError(res.status, `/repos/${full}${endpoint}`, res.headers.get('x-ratelimit-remaining'));
     }
     return res.json() as Promise<T>;
   }
+
+  // Set when GitHub answers 403 or 429 on any request, so the token-less cache is skipped.
+  let rateLimited = false;
+  const failureNote = (e: unknown): BilingualText => {
+    if (e instanceof GitHubHttpError) {
+      if (e.status === 403 || e.status === 429) rateLimited = true;
+      return describeGitHubFailure({ status: e.status, rateLimitRemaining: e.rateLimitRemaining, tokenSupplied: !!token });
+    }
+    const msg = redactToken(e instanceof Error ? e.message : String(e), token);
+    return { en: msg, es: msg };
+  };
 
   try {
     const meta = await request<{ name: string; default_branch: string; created_at?: string; pushed_at?: string; description?: string | null }>('');
@@ -349,14 +432,19 @@ export async function ingestGitHubRepo(
     const branchApi = encodeURIComponent(branchRaw);
     const branchPath = branchRaw.split('/').map(encodeURIComponent).join('/');
     const partialWarnings: string[] = [];
+    const partialWarningsEs: string[] = [];
 
     const [treeRes, historyRes] = await Promise.all([
-      request<{ tree: { type: string; path: string }[]; truncated?: boolean }>(`/git/trees/${branchApi}?recursive=1`).catch((e) => {
-        partialWarnings.push(`Tree unavailable (${e instanceof Error ? e.message : String(e)}).`);
+      request<{ tree: { type: string; path: string }[]; truncated?: boolean }>(`/git/trees/${branchApi}?recursive=1`).catch((e: unknown) => {
+        const note = failureNote(e);
+        partialWarnings.push(`Tree unavailable. ${note.en}`);
+        partialWarningsEs.push(`Árbol no disponible. ${note.es}`);
         return null;
       }),
-      request<{ sha: string; commit: { message: string; author?: { date: string }; committer?: { date: string } } }[]>('/commits?per_page=5').catch((e) => {
-        partialWarnings.push(`Commits unavailable (${e instanceof Error ? e.message : String(e)}).`);
+      request<{ sha: string; commit: { message: string; author?: { date: string }; committer?: { date: string } } }[]>('/commits?per_page=5').catch((e: unknown) => {
+        const note = failureNote(e);
+        partialWarnings.push(`Commits unavailable. ${note.en}`);
+        partialWarningsEs.push(`Commits no disponibles. ${note.es}`);
         return null;
       }),
     ]);
@@ -364,7 +452,10 @@ export async function ingestGitHubRepo(
     const rawEntries = treeRes?.tree ?? [];
     const all = rawEntries.filter((e) => e.type === 'blob' && eligiblePath(e.path)).map((e) => e.path);
     const knownTotalFiles = treeRes?.truncated ? Math.max(all.length, rawEntries.length) : all.length;
-    if (treeRes?.truncated) partialWarnings.push(`GitHub tree truncated (${all.length} eligible paths inspected).`);
+    if (treeRes?.truncated) {
+      partialWarnings.push(`GitHub tree truncated (${all.length} eligible paths inspected).`);
+      partialWarningsEs.push(`Árbol de GitHub truncado (${all.length} rutas elegibles inspeccionadas).`);
+    }
 
     const readmePath = all.find((p) => /^readme(?:\.|$)/i.test(p)) ?? all.find((p) => /^(?:docs|\.github)\/readme(?:\.|$)/i.test(p)) ?? 'README.md';
     const manifests = rankGitHubManifests(all);
@@ -392,7 +483,10 @@ export async function ingestGitHubRepo(
         docs.set(d.path || readmePath, text.slice(0, 192 * 1024));
       } catch {
         const ok = await fetchRaw(readmePath);
-        if (!ok) partialWarnings.push('README missing or skipped while keeping repository data.');
+        if (!ok) {
+          partialWarnings.push('README missing or skipped while keeping repository data.');
+          partialWarningsEs.push('README no disponible u omitido; se conservaron los datos del repositorio.');
+        }
       }
     }
 
@@ -427,6 +521,7 @@ export async function ingestGitHubRepo(
 
     const finalPaths = paths.length > 0 ? paths : [...docs.keys()];
     const warnNote = partialWarnings.length > 0 ? ` Notes: ${partialWarnings.join(' ')}` : '';
+    const warnNoteEs = partialWarningsEs.length > 0 ? ` Notas: ${partialWarningsEs.join(' ')}` : '';
     const known = Math.max(knownTotalFiles, finalPaths.length);
     const dossier = assemble({
       id: 'github:' + full.toLowerCase(),
@@ -444,21 +539,26 @@ export async function ingestGitHubRepo(
       oldest: Date.parse(meta.created_at || ''),
       newest: Date.parse((historyRes?.[0]?.commit.committer?.date || historyRes?.[0]?.commit.author?.date || meta.pushed_at) || ''),
       honestyNote: `Read-only public GitHub scan of ${full} (${branchRaw}): ${known} known files (${docs.size} source/manifest files sampled).${warnNote}`,
-      honestyNoteEs: `Lectura pública de solo lectura en GitHub (${full}, rama ${branchRaw}): ${known} archivos conocidos (${docs.size} fuentes/manifiestos muestreados).${warnNote}`,
+      honestyNoteEs: `Lectura pública de solo lectura en GitHub (${full}, rama ${branchRaw}): ${known} archivos conocidos (${docs.size} fuentes/manifiestos muestreados).${warnNoteEs}`,
       dispose() {},
     });
 
-    if (!token) {
+    if (!token && !rateLimited) {
       try { globalThis.sessionStorage?.setItem(key, JSON.stringify({ ...dossier, visitorName: '' })); } catch { /* optional */ }
     }
     return dossier;
   } catch (error) {
-    const reason = ctrl.signal.aborted
-      ? `Timeout reading ${full} (9 s).`
-      : error instanceof Error && error.message.startsWith('GitHub HTTP')
-        ? error.message
-        : `Could not read ${full}: ${error instanceof Error ? error.message : String(error)}.`;
-    return createExampleDossier(visitorName, reason);
+    let reason: BilingualText;
+    if (ctrl.signal.aborted) {
+      reason = { en: `Timeout reading ${full} (9 s).`, es: `Tiempo agotado leyendo ${full} (9 s).` };
+    } else if (error instanceof GitHubHttpError) {
+      if (error.status === 403 || error.status === 429) rateLimited = true;
+      reason = describeGitHubFailure({ status: error.status, rateLimitRemaining: error.rateLimitRemaining, tokenSupplied: !!token });
+    } else {
+      const msg = redactToken(error instanceof Error ? error.message : String(error), token);
+      reason = { en: `Could not read ${full}: ${msg}.`, es: `No se pudo leer ${full}: ${msg}.` };
+    }
+    return createExampleDossier(visitorName, reason.en, reason.es);
   } finally {
     clearTimeout(timer);
     ctrl.abort();
@@ -572,7 +672,7 @@ export function detectReentryPlan(paths: string[], contents: ReadonlyMap<string,
   };
 }
 
-export function createPresetDossier(presetId: PresetId, visitorName: string, fallbackReason?: string): ProjectDossier {
+export function createPresetDossier(presetId: PresetId, visitorName: string, fallbackReason?: string, fallbackReasonEs?: string): ProjectDossier {
   const { id, archetype, archetypeLabel, runCommands, envHints, testCommand, nextSteps, todos, graph, honestyNoteEs, ...data } = structuredClone(PRESETS[presetId]);
   const edges = graph.edges.map((e) => ({ from: e.from, to: e.to, kind: (e.kind ?? 'import') as 'import' | 'folder' }));
   const mappedTodos: TodoTrack[] = todos.map((t) => ({ ...t }));
@@ -601,7 +701,7 @@ export function createPresetDossier(presetId: PresetId, visitorName: string, fal
     selectedTodoIds: mappedTodos.map((t) => t.id),
     activeTodoIndex: 0,
     honestyNote: [fallbackReason, data.honestyNote].filter(Boolean).join(' '),
-    honestyNoteEs: [fallbackReason, honestyNoteEs ?? data.honestyNote].filter(Boolean).join(' '),
+    honestyNoteEs: [fallbackReasonEs ?? fallbackReason, honestyNoteEs ?? data.honestyNote].filter(Boolean).join(' '),
     dispose() {},
   };
 }

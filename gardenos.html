@@ -115,6 +115,7 @@ canvas.pick{cursor:pointer}
 .dosBtnSm:hover{border-color:#e0a458;color:#fff}
 .dosQuickSwitch{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px;padding:10px 12px;background:#080e10;border:1px solid #1e2d2e;border-radius:6px}
 .dosQuickSwitch input{flex:1 1 200px;min-height:36px;padding:4px 10px;background:#05090a;border:1px solid #2a3e3f;border-radius:4px;color:#f3eedf;font:12.5px "Courier New",monospace}
+.dosTokenHint{flex:1 1 100%;font:11px/1.4 "Courier New",monospace;color:#9fb3b4}
 .dosHonest{margin:12px 0 0;padding:10px 14px;background:#0e191b;border-left:3px solid #6ec9a7;border-radius:0 4px 4px 0;font:12.5px/1.5 system-ui,sans-serif;color:#c9dbd4}
 .dosHonest.demo{border-left-color:#e0a458;background:#19140d;color:#ead7bc}
 .dosSecTitle{margin:20px 0 10px;font:700 11px/1.2 "Courier New",monospace;letter-spacing:.18em;text-transform:uppercase;color:#9eb3ac}
@@ -196,6 +197,9 @@ canvas.pick{cursor:pointer}
   </header>
   <div class="dosQuickSwitch">
     <input id="quickRepoInput" type="text" placeholder="owner/repo or github.com/owner/repo" aria-label="Load another GitHub repository" />
+    <input id="quickTokenInput" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="255" data-lpignore="true" aria-describedby="quickTokenHint" placeholder="GitHub token (optional)" aria-label="Optional GitHub personal access token" />
+    <button class="dosBtnSm" id="btnClearToken" type="button">Clear token</button>
+    <small id="quickTokenHint" class="dosTokenHint">Optional token. Stays in memory only: never saved to browser storage, the Kiro Revival Pack, or any download. Raises GitHub's limit from 60 to 5,000 requests per hour.</small>
     <button class="dosBtnSm" id="btnLoadRepo" type="button">Load GitHub</button>
     <button class="dosBtnSm" id="btnLoadFolder" type="button">Folder</button>
     <button class="dosBtnSm" id="btnLoadBoundary" type="button">BOUNDARY</button>
