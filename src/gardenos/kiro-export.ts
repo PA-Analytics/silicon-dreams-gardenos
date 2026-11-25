@@ -1,16 +1,59 @@
 import type { ProjectDossier, TodoTrack, VerdictId } from './ingest.ts';
 import type { Lang } from './i18n.ts';
 
+// Redacted values are held as a private-use marker until the final render. Escaping never touches the marker.
+const REDACTED = '\uE000';
+const SENSITIVE_KEY = /token|secret|passw|pwd|apikey|api[_-]?key|credential|private[_-]?key|access[_-]?key|auth(?!or)/i;
+const HYPOTHESIS = 'Hypothesis (unconfirmed)';
+
+// Replaces secret-like values with the marker and keeps any key name visible.
+function markSecrets(text: string): string {
+  let out = text.replace(/[\uE000\uE001]/g, '');
+  out = out.replace(/\b([A-Za-z_][\w.-]*)(["']?\s*[=:]\s*)(["']?)([^\s"'`,;&]+)\3/g,
+    (match, key: string, sep: string, quote: string) => (SENSITIVE_KEY.test(key) ? `${key}${sep}${quote}${REDACTED}${quote}` : match));
+  out = out.replace(/\b(?:gh[pousr]_|github_pat_|sk-|xox[abprs]-|AKIA|AIza)[A-Za-z0-9_-]{12,}/g, REDACTED);
+  out = out.replace(/\b(Bearer\s+)[A-Za-z0-9._~+/=-]{8,}/gi, (_m, keyword: string) => keyword + REDACTED);
+  return out.replace(/[A-Za-z0-9_+=]{16,}/g, (token) => (isSecretLike(token) ? REDACTED : token));
+}
+// A long token with letters and digits is treated as a credential. Identifiers such as exp_0001_baseline_v2 are names and stay visible.
+function isSecretLike(token: string): boolean {
+  if (!/[A-Za-z]/.test(token) || !/\d/.test(token)) return false;
+  if (token.includes('_') && token.split('_').filter(Boolean).every((segment) => /^(?:[A-Za-z]+|\d+[a-z]*|v\d+)$/.test(segment))) return false;
+  return true;
+}
+const renderRedacted = (text: string) => text.replace(/\uE000/g, '<redacted>');
+
+// Redacts secret-like values in text that is written as-is, such as a code block.
+export const redactSecrets = (text: string): string => renderRedacted(markSecrets(text));
+
 const oneLine = (text: string) => text.replace(/[\r\n\t]+/g, ' ').trim();
-const plain = (text: string) => oneLine(text).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]!)).replace(/[\\`*_\[\]#!|]/g, '\\$&');
-function literal(text: string): string {
-  const value = oneLine(text);
+const plain = (text: string) => renderRedacted(oneLine(markSecrets(text)).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]!)).replace(/[\\`*_\[\]#!|]/g, '\\$&'));
+function codeSpan(value: string): string {
   const fence = '`'.repeat(Math.max(0, ...Array.from(value.matchAll(/`+/g), (m) => m[0].length)) + 1);
   const padding = value.startsWith('`') || value.endsWith('`') ? ' ' : '';
   return `${fence}${padding}${value}${padding}${fence}`;
 }
+const literal = (text: string): string => renderRedacted(codeSpan(oneLine(markSecrets(text))));
+// Git hashes are hex and would match the generic token rule, so a hex hash is shown as observed.
+const hashLiteral = (hash: string): string => (/^[0-9a-f]{7,64}$/i.test(hash.trim()) ? codeSpan(hash.trim()) : literal(hash));
 const slugOf = (name: string) => name.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 72).replace(/-$/, '') || 'project';
 const location = (d: ProjectDossier) => (d.tapeClue.path || 'unknown-path') + (d.tapeClue.lineNumber ? ':' + d.tapeClue.lineNumber : '');
+// Configuration files hold data, so their markers are not code-behavior criteria.
+const isConfigPath = (path: string) => /\.(?:json|ya?ml|toml|ini|cfg|conf|xml|properties)$/i.test(path) || /(^|\/)\.env[^/]*$/i.test(path);
+
+// The visitor placeholder is not an author. Only a name the visitor typed counts.
+function authorName(d: ProjectDossier): string | null {
+  const name = d.visitorName?.trim();
+  return name && name !== 'Visitor' ? plain(name) : null;
+}
+function creatorLabel(d: ProjectDossier): string {
+  const name = authorName(d);
+  return name ? `Creator note (${name}):` : 'Creator note:';
+}
+function hypothesis(text: string): string {
+  const body = plain(text);
+  return body.startsWith(HYPOTHESIS) ? body : `${HYPOTHESIS}: ${body}`;
+}
 
 function selectedTracks(d: ProjectDossier): TodoTrack[] {
   const all = d.todos ?? [];
@@ -44,7 +87,7 @@ function header(d: ProjectDossier, lang: Lang): string[] {
 function observations(d: ProjectDossier): string[] {
   const files = [...new Set([d.primaryPiece.path, d.tapeClue.path, d.towerRecord.path, ...d.todos.map((t) => t.path)].filter(Boolean))];
   const commits = d.commits.length
-    ? d.commits.slice(0, 5).map((c) => `  - ${literal(c.hash)} (${plain(c.date)}): ${plain(c.message)}`).join('\n')
+    ? d.commits.slice(0, 5).map((c) => `  - ${hashLiteral(c.hash)} (${plain(c.date)}): ${plain(c.message)}`).join('\n')
     : '  - No git commit history available in this scan.';
   const tracks = selectedTracks(d);
   const todoBlock = d.todos.length
@@ -57,26 +100,29 @@ function observations(d: ProjectDossier): string[] {
     `- Recent commits:\n${commits}`,
     `- Primary trace: ${literal(location(d))} — ${plain(d.tapeClue.observedFact)}`,
     todoBlock,
-    `- Declared launch/build commands: ${d.reentry.runCommands.length ? d.reentry.runCommands.map(literal).join(', ') : 'none verified'}.`,
-    `- Test command: ${d.reentry.testCommand ? literal(d.reentry.testCommand) : 'none verified'}.`,
+    `- Declared launch/build commands (unverified): ${d.reentry.runCommands.length ? d.reentry.runCommands.map(literal).join(', ') : 'none verified'}.`,
+    `- Declared test command (unverified): ${d.reentry.testCommand ? literal(d.reentry.testCommand) : 'none verified'}.`,
     `- Environment hints: ${d.reentry.envHints.length ? d.reentry.envHints.map(literal).join(', ') : 'none detected'}.`,
   ];
 }
 
 export function formatKiroHookJson(dossier: ProjectDossier): string {
+  const name = redactSecrets(dossier.projectName);
   const test = dossier.reentry.testCommand;
+  // A test command that redaction would alter is not emitted as an executable hook action.
+  const command = test && redactSecrets(test) === test ? test : null;
   const hook = {
     version: 'v1',
     hooks: [
       {
-        name: test ? `Verify ${dossier.projectName} revival` : `Manual check for ${dossier.projectName}`,
-        description: test
-          ? 'Generated by Silicon Dreams: runs the verified test command after a revival spec task finishes.'
+        name: command ? `Verify ${name} revival` : `Manual check for ${name}`,
+        description: command
+          ? 'Generated by Silicon Dreams: runs the test command declared in the manifest (unverified) after a revival spec task finishes.'
           : 'Generated by Silicon Dreams: prompts for a manual verification when no test runner was detected.',
         trigger: 'PostTaskExec',
         enabled: false,
-        action: test
-          ? { type: 'command', command: test }
+        action: command
+          ? { type: 'command', command }
           : { type: 'agent', prompt: 'manual: ask the creator to verify the change against the baseline and record the result. Do not invent test commands.' },
       },
     ],
@@ -91,7 +137,7 @@ export function formatKiroDesignMd(dossier: ProjectDossier, lang: Lang = 'en'): 
     ? 'Resumen arquitectónico derivado únicamente del grafo, manifiestos y contexto de código leído.'
     : 'Architecture summary derived strictly from the read dependency graph, manifests, and code context.';
   const ctxSection = tracks.length > 0
-    ? ['', '## Code Context Around Selected Tracks', ...tracks.slice(0, 3).flatMap((t) => [`### ${literal(`${t.path}:${t.lineNumber}`)}`, '```', t.contextSnippet!, '```'])]
+    ? ['', '## Code Context Around Selected Tracks', ...tracks.slice(0, 3).flatMap((t) => [`### ${literal(`${t.path}:${t.lineNumber}`)}`, '```', redactSecrets(t.contextSnippet!), '```'])]
     : [];
   return [
     `# Design — ${plain(dossier.projectName)}`,
@@ -102,29 +148,40 @@ export function formatKiroDesignMd(dossier: ProjectDossier, lang: Lang = 'en'): 
     `- **Graph coupling:** ${dossier.graph.nodes.length} nodes · ${dossier.graph.importEdgeCount} local import edges · ${dossier.graph.edges.length - dossier.graph.importEdgeCount} folder links`,
     `- **Top connected modules:** ${hubs.length ? hubs.map((n) => literal(n.id)).join(', ') : 'none'}`,
     `- **Environment variables / config:** ${dossier.reentry.envHints.length ? dossier.reentry.envHints.map(literal).join(', ') : 'none verified'}`,
-    `- **Commits inspected (${dossier.commits.length}):** ${dossier.commits.length ? dossier.commits.map((c) => `${literal(c.hash)} ${plain(c.message)}`).join(' · ') : 'none'}`,
+    `- **Commits inspected (${dossier.commits.length}):** ${dossier.commits.length ? dossier.commits.map((c) => `${hashLiteral(c.hash)} ${plain(c.message)}`).join(' · ') : 'none'}`,
     ...ctxSection,
   ].join('\n');
 }
 
 export function formatKiroTasksMd(dossier: ProjectDossier, creatorNote: string, lang: Lang = 'en'): string {
+  // creatorNote is intentionally unused here: creator notes stay in their own section and never become tasks.
+  void creatorNote;
   const first = dossier.reentry.runCommands[0];
   const test = dossier.reentry.testCommand;
-  const picked = selectedTracks(dossier);
-  const tracks = picked.length > 0 ? picked.slice(0, 4) : (dossier.todos.length === 0 ? [{ path: dossier.tapeClue.path, lineNumber: dossier.tapeClue.lineNumber ?? 0, excerpt: dossier.tapeClue.excerpt, tag: 'STUB' as const }] : []);
-  const tasks = tracks.map((t) => {
+  const picked = selectedTracks(dossier).slice(0, 4);
+  const tasks = picked.map((t) => {
     const loc = t.lineNumber ? `${t.path}:${t.lineNumber}` : t.path;
-    return `- [ ] Inspect ${literal(loc)} and resolve ${literal(t.excerpt)}.`;
+    return isConfigPath(t.path)
+      ? `- [ ] Review the configuration at ${literal(loc)} and confirm the marker text ${literal(t.excerpt)}.`
+      : `- [ ] Inspect ${literal(loc)} and resolve ${literal(t.excerpt)}.`;
   });
-  if (tracks.length === 0) tasks.push('- [ ] Review the observed repository inventory and pick the next target module.');
-  tasks.push(first ? `- [ ] Verify manifest command ${literal(first)} in a clean local environment.` : '- [ ] Identify and document the entry point before running changes.');
-  tasks.push(test ? `- [ ] Run ${literal(test)} and confirm baseline pass/fail status.` : '- [ ] Document one reproducible manual check and expected output.');
-  if (creatorNote.trim()) tasks.push(`- [ ] Cross-check creator note: ${plain(creatorNote)}`);
+  if (tasks.length === 0) {
+    tasks.push(dossier.todos.length === 0
+      ? `- ${HYPOTHESIS} example, not a verified marker and not a task: ${literal(dossier.tapeClue.excerpt)} appears near ${literal(location(dossier))}.`
+      : '- [ ] Review the observed repository inventory and pick the next target module.');
+  }
+  tasks.push(first
+    ? `- [ ] Verify the declared manifest command ${literal(first)} in a clean local environment. Declared in manifest (unverified).`
+    : '- [ ] Identify and document the entry point before running changes.');
+  tasks.push(test
+    ? `- [ ] Run ${literal(test)} and confirm baseline pass/fail status. Declared in manifest (unverified).`
+    : '- [ ] Document one reproducible manual check and expected output.');
   return [lang === 'es' ? '# Tasks (Primeros pasos en Kiro)' : '# Tasks (First Steps in Kiro)', '', ...tasks].join('\n');
 }
 
 export function formatKiroRequirementsMd(dossier: ProjectDossier, creatorNote: string, lang: Lang = 'en'): string {
   const d = dossier;
+  const project = plain(d.projectName);
   const first = d.reentry.runCommands[0];
   const test = d.reentry.testCommand;
   const tracks = selectedTracks(d).slice(0, 4);
@@ -132,23 +189,29 @@ export function formatKiroRequirementsMd(dossier: ProjectDossier, creatorNote: s
   if (tracks.length > 0) {
     tracks.forEach((t, idx) => {
       const ref = literal(`${t.path}:${t.lineNumber}`);
-      ears.push(`${idx + 1}. WHEN the code at ${ref} is exercised, THE SYSTEM SHALL resolve ${literal(t.excerpt)} with a reproducible verification check.`);
+      ears.push(isConfigPath(t.path)
+        ? `${idx + 1}. WHEN the configuration at ${ref} is revisited, THE ${project} SHALL review the marker text ${literal(t.excerpt)} as a documented note and confirm the intended value with a reproducible check.`
+        : `${idx + 1}. WHEN the code at ${ref} is exercised, THE SYSTEM SHALL resolve ${literal(t.excerpt)} with a reproducible verification check.`);
     });
   } else if (d.todos.length === 0) {
-    const ref = literal(location(d));
-    ears.push(`1. WHEN the component at ${ref} is reopened, THE SYSTEM SHALL preserve the observed baseline behavior before modifications.`);
+    ears.push(`1. ${HYPOTHESIS} example: WHEN the component at ${literal(location(d))} is reopened, THE SYSTEM SHALL preserve the observed baseline behavior before modifications.`);
   } else {
     ears.push('1. WHEN all TODO tracks are deselected in triage, THE SYSTEM SHALL preserve the repository baseline without inventing extra requirements.');
   }
   const n1 = ears.length + 1;
-  ears.push(first ? `${n1}. WHEN the creator runs ${literal(first)}, THE SYSTEM SHALL launch cleanly or report missing environment keys (${d.reentry.envHints.length ? d.reentry.envHints.slice(0, 3).map(literal).join(', ') : 'none detected'}).` : `${n1}. WHEN no launch script is verified in manifests, THE SYSTEM SHALL require manual entry-point confirmation before automation.`);
-  ears.push(test ? `${n1 + 1}. WHEN a revival task modifies code, THE SYSTEM SHALL run ${literal(test)} and record its exit status before marking the task complete.` : `${n1 + 1}. WHEN no test runner is verified, THE SYSTEM SHALL require a documented manual verification check before marking a task complete.`);
+  const hints = d.reentry.envHints.length ? d.reentry.envHints.slice(0, 3).map(literal).join(', ') : 'none detected';
+  ears.push(first
+    ? `${n1}. Declared in manifest (unverified): launch command ${literal(first)}. Silicon Dreams did not run it. Environment hints: ${hints}.`
+    : `${n1}. WHEN no launch script is verified in manifests, THE SYSTEM SHALL require manual entry-point confirmation before automation.`);
+  ears.push(test
+    ? `${n1 + 1}. Declared in manifest (unverified): test command ${literal(test)}. Silicon Dreams did not run it. Run it and record its exit status before marking a revival task complete.`
+    : `${n1 + 1}. WHEN no test runner is verified, THE SYSTEM SHALL require a documented manual verification check before marking a task complete.`);
 
   return [
-    `# Requirements — ${plain(d.projectName)}`,
+    `# Requirements — ${project}`,
     '',
-    `> ${plain(d.tapeClue.interpretation)}`,
-    ...(creatorNote.trim() ? [`> Creator note (${plain(d.visitorName)}): ${plain(creatorNote)}`] : []),
+    `> ${hypothesis(d.tapeClue.interpretation)}`,
+    ...(creatorNote.trim() ? [`> ${creatorLabel(d)} ${plain(creatorNote)}`] : []),
     '',
     '## Acceptance Criteria (EARS)',
     ...ears,
@@ -159,13 +222,14 @@ export function formatKiroRequirementsMd(dossier: ProjectDossier, creatorNote: s
 
 export function formatKiroRevivalSpec(dossier: ProjectDossier, verdict: VerdictId | null, creatorNote: string, lang: Lang = 'en'): string {
   const d = dossier;
-  const slug = slugOf(d.projectName);
+  const slug = slugOf(redactSecrets(d.projectName));
   const verdictLabels: Record<VerdictId, string> = {
     archive: lang === 'es' ? 'Archivar' : 'Archive',
     restore: lang === 'es' ? 'Restaurar' : 'Restore in Kiro',
     leave: lang === 'es' ? 'Dejar inconcluso' : 'Leave Unfinished',
   };
   const noteBlock = creatorNote.trim() ? creatorNote.trim().split(/\r?\n/).map((line) => '> ' + plain(line)).join('\n') : '_No creator note supplied._';
+  const author = authorName(d);
   const reqLines = formatKiroRequirementsMd(d, creatorNote, lang).split('## Acceptance Criteria (EARS)\n')[1]?.split('\n\n')[0] || '';
   return [
     `# Kiro Revival Pack — ${plain(d.projectName)}`,
@@ -178,9 +242,9 @@ export function formatKiroRevivalSpec(dossier: ProjectDossier, verdict: VerdictI
     ...observations(d),
     '',
     '## 2. Hypothesis (Unconfirmed)',
-    `Hypothesis (unconfirmed): ${plain(d.tapeClue.interpretation)}`,
+    hypothesis(d.tapeClue.interpretation),
     '',
-    `## 3. Creator Note (${plain(d.visitorName)})`,
+    `## 3. Creator Note${author ? ` (${author})` : ''}`,
     noteBlock,
     '',
     '## 4. Requirements (EARS — requirements.md)',
@@ -205,6 +269,7 @@ export function formatKiroRevivalSpec(dossier: ProjectDossier, verdict: VerdictI
 
 export function formatArchiveCard(dossier: ProjectDossier, creatorNote: string, lang: Lang = 'en'): string {
   const noteBlock = creatorNote.trim() ? creatorNote.trim().split(/\r?\n/).map((line) => '> ' + plain(line)).join('\n') : '_No creator note supplied._';
+  const author = authorName(dossier);
   return [
     `# ARCHIVE_CARD.md — ${plain(dossier.projectName)}`,
     '',
@@ -213,7 +278,7 @@ export function formatArchiveCard(dossier: ProjectDossier, creatorNote: string, 
     '## Observed State at Archive',
     ...observations(dossier),
     '',
-    `## Creator Note (${plain(dossier.visitorName)})`,
+    `## Creator Note${author ? ` (${author})` : ''}`,
     noteBlock,
     '',
     '## Decision',
